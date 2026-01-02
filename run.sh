@@ -1,0 +1,2 @@
+make
+./build/sim.exe
