@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# [treesource] This updates the README.
+# [treesource] This script updates the README.
 
 echo "This repo is for simulating network traffic." > README.md
 echo '```' >> README.md
