@@ -1,13 +1,25 @@
 #pragma once
 #include <functional>
+#include <memory>
+#include "sim_types.hpp"
+
+class Simulation;
 
 struct Event
 {
-  double time;
-  std::function<void()> action;
+  SimTime time;
+  std::function<void()> action; // function called when popped off queue.
 
-  bool operator<(const Event &other) const
+  Event(SimTime t, std::function<void()> act)
+      : time(t), action(std::move(act)) {}
+
+  virtual ~Event() = default; // destructor for polymorphism stuffs
+};
+
+struct EventCompare
+{
+  bool operator()(const std::unique_ptr<Event> &a, const std::unique_ptr<Event> &b) const
   {
-    return time > other.time;
+    return a->time > b->time;
   }
 };

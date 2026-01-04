@@ -4,8 +4,8 @@
 
 struct Node
 {
-  int id;
-  std::vector<int> neighbors;
+  NodeId id;
+  std::vector<NodeId> neighbors;
 
   void receive_packet(const Packet &pkt);
   void send_packet(const Packet &pkt, int next_node);

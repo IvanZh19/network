@@ -1,10 +1,13 @@
 #pragma once
-#include <string>
+#include "sim_types.hpp"
 
 struct Packet
 {
-  int id;
-  int src;
-  int dst;
-  int sz;
+  PacketId id;
+  NodeId src;
+  NodeId dst;
+  int packet_size;
+  SimTime creation_time;
+
+  Packet(PacketId packet_id, NodeId source, NodeId dest, int packet_size, SimTime creation_time);
 };
