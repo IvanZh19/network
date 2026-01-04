@@ -12,6 +12,7 @@
 Simulation::Simulation()
 {
   current_time = 0.0;
+  // note that other fields are fine as is, will get changed by methods.
 }
 
 SimTime Simulation::now() const
@@ -38,15 +39,14 @@ void Simulation::step()
 
   current_time = e->time;
   e->action(); // if e requires the sim context, it should be a lambda using [&sim]
-
 }
 
 Node &Simulation::node(NodeId id)
 {
-  nodes.push_back()
+  // nodes.push_back(Node())
 }
 
 Packet &Simulation::packet(PacketId id)
 {
-
+  // packets.push_back(Packet &&Val)
 }

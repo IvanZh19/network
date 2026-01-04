@@ -1,48 +1,36 @@
+// [treesource] This is the main entry point. It handles and runs Simulation instances.
+
 #include <iostream>
 #include <queue>
 #include <functional>
 
 #include "event.hpp"
 #include "node.hpp"
-#include "link.hpp"
 #include "packet.hpp"
-
-double current_time = 0.0;
+#include "sim.hpp"
 
 int main()
 {
-  std::cout << "Sanity..." << std::endl;
+  std::cout << "Main: starting Simulation" << std::endl;
 
-  std::priority_queue<Event> event_queue;
+  Simulation sim = Simulation();
 
-  // add some events here before running loop
+  sim.schedule(std::make_unique<Event>(1.0, [&sim](){
+    std::cout << "Event at t=1.0, now=" << sim.now() << "\n";
+  }));
 
-  event_queue.push(Event{1.0, []()
-                         {
-                           std::cout << "Event at time 1.0 executed." << std::endl;
-                         }});
+  sim.schedule(std::make_unique<Event>(0.5, [&sim](){
+    std::cout << "Event at t=0.5, now=" << sim.now() << "\n";
+  }));
 
-  event_queue.push(Event{0.5, []()
-                         {
-                           std::cout << "Event at time 0.5 executed." << std::endl;
-                         }});
+  sim.schedule(std::make_unique<Event>(2.0, [&sim](){
+    std::cout << "Event at t=2.0, now=" << sim.now() << "\n";
+  }));
 
-  event_queue.push(Event{2.0, []()
-                         {
-                           std::cout << "Event at time 2.0 executed." << std::endl;
-                         }});
-
-  // start simulating
-  while (!event_queue.empty())
+  while (!sim.done())
   {
-    Event e = event_queue.top();
-    event_queue.pop();
-
-    current_time = e.time;
-    e.action();
+    sim.step();
   }
 
-  std::cout << "Simulation finished at time " << current_time << std::endl;
-
-  return 0;
+  std::cout << "Simulation finished at t=" << sim.now() << std::endl;
 }
