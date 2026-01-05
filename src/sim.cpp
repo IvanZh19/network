@@ -41,12 +41,43 @@ void Simulation::step()
   e->action(); // if e requires the sim context, it should be a lambda using [&sim]
 }
 
-Node &Simulation::node(NodeId id)
+NodeId Simulation::add_node()
 {
-  // nodes.push_back(Node())
+  NodeId id = nodes.size();
+  auto n = std::make_unique<Node>(nodes.size());
+  nodes.push_back(std::move(n));
+  adj_list.emplace_back(); // make empty edge list for this node
+  return id;
 }
 
-Packet &Simulation::packet(PacketId id)
+Node &Simulation::get_node(NodeId id)
 {
-  // packets.push_back(Packet &&Val)
+  assert (id < nodes.size());
+  return *nodes.at(id);
+}
+
+PacketId Simulation::add_packet(NodeId source, NodeId dest, int packet_size, SimTime creation_time)
+{
+  PacketId pid = packets.size();
+  auto p = std::make_unique<Packet>(pid, source, dest, source, packet_size, creation_time);
+  packets.push_back(std::move(p));
+  return pid;
+}
+
+Packet &Simulation::get_packet(PacketId id)
+{
+  assert (id < packets.size());
+  return *packets.at(id);
+}
+
+void Simulation::add_directed_link(NodeId from, NodeId to, SimTime latency)
+{
+  assert (from < packets.size() && to < packets.size());
+  adj_list[from].push_back(Edge{to, latency});
+}
+
+void Simulation::add_undirected_link(NodeId from, NodeId to, SimTime latency)
+{
+  Simulation::add_directed_link(from, to, latency);
+  Simulation::add_directed_link(to, from, latency);
 }

@@ -1,3 +1,5 @@
+// [treesource] This defines the basic Event struct.
+
 #pragma once
 #include <functional>
 #include <memory>

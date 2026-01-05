@@ -6,11 +6,8 @@
 #include <queue>
 #include "sim_types.hpp"
 #include "event.hpp"
-
-// forward decl so it knows these exist
-class Node;
-class Packet;
-class Event;
+#include "node.hpp"
+#include "packet.hpp"
 
 class Simulation
 {
@@ -20,18 +17,26 @@ public:
   SimTime now() const; // get the current time of the simulation
   bool done() const;   // true if no more events will occur
 
-  void schedule(std::unique_ptr<Event> e);
-  void step(); // executes one event within the simulation.
+  void schedule(std::unique_ptr<Event> e); // add an event to the simulation.
+  void step(); // executes the next event within the simulation.
 
-  Node &node(NodeId id);       // add a node to the simulation
-  Packet &packet(PacketId id); // add a packet to the simulation.
+  NodeId add_node(); // add node, returns ID numbered starting from 0.
+  Node &get_node(NodeId id); // return Node& for the given id
+
+  PacketId add_packet(NodeId source, NodeId dest, int packet_size, SimTime creation_time);
+  Packet &get_packet(PacketId id);
+  // the owner of a Packet is assumed to be source at creation, and updates when the next node receives it.
+  // it's assumed that Nodes and Packets can't be removed, so lookup by id is trivial.
+
+  void add_directed_link(NodeId from, NodeId to, SimTime latency); // link nodes within the network. asserts they exist.
+  void add_undirected_link(NodeId from, NodeId to, SimTime latency); // link both ways.
 
 private:
   SimTime current_time;
 
-  std::vector<Node> nodes;
-  std::vector<Packet> packets;
-  std::vector<std::vector<SimTime>> adj_list; // to store edge weights and network topology
+  std::vector<std::unique_ptr<Node>> nodes;
+  std::vector<std::unique_ptr<Packet>> packets;
+  std::vector<std::vector<Edge>> adj_list; // to store edge weights and network topology
 
   std::priority_queue<
       std::unique_ptr<Event>,

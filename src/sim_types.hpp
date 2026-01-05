@@ -3,5 +3,11 @@
 #pragma once
 
 using SimTime = double;
-using PacketId = int;
-using NodeId = int;
+using PacketId = long long unsigned int;
+using NodeId = long long unsigned int;
+
+// Edge structs used in adjacency list.
+struct Edge {
+  NodeId to;
+  SimTime delay;
+};
