@@ -1,3 +1,5 @@
+# [treesource] This is the Makefile for building with main.cpp
+
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -O2
 

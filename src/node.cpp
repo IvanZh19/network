@@ -1,4 +1,4 @@
-// [treesource] This defines the basic behavior of Nodes.
+// [treesource] This defines the behavior of Nodes.
 
 #include <iostream>
 #include "node.hpp"

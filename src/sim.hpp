@@ -31,6 +31,10 @@ public:
   void add_directed_link(NodeId from, NodeId to, SimTime latency); // link nodes within the network. asserts they exist.
   void add_undirected_link(NodeId from, NodeId to, SimTime latency); // link both ways.
 
+  void print_nodes() const;
+  void print_packets() const;
+  void print_adj_list() const;
+
 private:
   SimTime current_time;
 

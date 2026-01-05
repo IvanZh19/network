@@ -72,7 +72,7 @@ Packet &Simulation::get_packet(PacketId id)
 
 void Simulation::add_directed_link(NodeId from, NodeId to, SimTime latency)
 {
-  assert (from < packets.size() && to < packets.size());
+  assert (from < nodes.size() && to < nodes.size());
   adj_list[from].push_back(Edge{to, latency});
 }
 
@@ -80,4 +80,38 @@ void Simulation::add_undirected_link(NodeId from, NodeId to, SimTime latency)
 {
   Simulation::add_directed_link(from, to, latency);
   Simulation::add_directed_link(to, from, latency);
+}
+
+void Simulation::print_nodes() const
+{
+  std::cout << "Nodes: \n";
+  for (const auto& n_ptr : nodes) {
+    std::cout << "- Node " << n_ptr->id() << "\n";
+  }
+}
+
+void Simulation::print_packets() const
+{
+  std::cout << "Packets: \n";
+  for (const auto& p_ptr : packets) {
+    std::cout << "- Packet " << p_ptr->id
+              << "  - owner: " << p_ptr->owner
+              << "  - src: " << p_ptr->src
+              << "  - dst: " << p_ptr->dst
+              << "  - size: " << p_ptr->packet_size
+              << "  - created at: " << p_ptr->creation_time
+              << "\n";
+  }
+}
+
+void Simulation::print_adj_list() const
+{
+  std::cout << "Adjacency list: \n";
+  for (NodeId i = 0; i < adj_list.size(); ++i) {
+    std::cout << "- Node " << i << ": ";
+    for (const Edge &e : adj_list[i]) {
+      std::cout << "(" << e.to << ", " << e.delay << ") ";
+    }
+    std::cout << "\n";
+  }
 }

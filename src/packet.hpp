@@ -1,4 +1,4 @@
-// [treesource] This defines the POD Packet struct.
+// [treesource] This defines the Packet struct.
 
 #pragma once
 #include "sim_types.hpp"
