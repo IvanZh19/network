@@ -2,19 +2,23 @@
 
 #pragma once
 #include "sim_types.hpp"
+
 struct Packet;
+class Simulation; // note we have to forward decl here, include would break stuffs.
 
 class Node
 {
 public:
-  explicit Node(NodeId id)
-    : nid(id) {}
+  Node(NodeId id) : nid(id) {}
 
   NodeId id() const { return nid; }
 
-  void receive_packet(const Packet &pkt); // to be called by events
-  void send_packet(const Packet &pkt, int next_node); // not sure if need for now?
+  void receive_packet(PacketId pid, Simulation& sim);
+  // typically an Event triggers this,
+  // and the Node creates+schedules a new Event with the receive_packet of the next Node.
 
 private:
   NodeId nid;
+
+  NodeId choose_next_hop(const Packet& p, Simulation& sim) const;
 };

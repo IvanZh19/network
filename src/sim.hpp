@@ -19,6 +19,7 @@ public:
 
   void schedule(std::unique_ptr<Event> e); // add an event to the simulation.
   void step(); // executes the next event within the simulation.
+  void run(); // step() until no more events are left.
 
   NodeId add_node(); // add node, returns ID numbered starting from 0.
   Node &get_node(NodeId id); // return Node& for the given id
@@ -30,6 +31,9 @@ public:
 
   void add_directed_link(NodeId from, NodeId to, SimTime latency); // link nodes within the network. asserts they exist.
   void add_undirected_link(NodeId from, NodeId to, SimTime latency); // link both ways.
+
+  std::vector<Edge>& get_edges(NodeId id); // returns outgoing Edges for a Node.
+  SimTime get_weight(NodeId from, NodeId to); // return weight for an edge, assumes it exists.
 
   void print_nodes() const;
   void print_packets() const;

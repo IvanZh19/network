@@ -41,6 +41,14 @@ void Simulation::step()
   e->action(); // if e requires the sim context, it should be a lambda using [&sim]
 }
 
+void Simulation::run()
+{
+  while (!done())
+  {
+    step();
+  }
+}
+
 NodeId Simulation::add_node()
 {
   NodeId id = nodes.size();
@@ -80,6 +88,26 @@ void Simulation::add_undirected_link(NodeId from, NodeId to, SimTime latency)
 {
   Simulation::add_directed_link(from, to, latency);
   Simulation::add_directed_link(to, from, latency);
+}
+
+std::vector<Edge>& Simulation::get_edges(NodeId id)
+{
+  assert(id < adj_list.size());
+  return adj_list[id];
+}
+
+SimTime Simulation::get_weight(NodeId from, NodeId to)
+{
+  std::vector<Edge> edges = get_edges(from);
+  for (Edge e : edges)
+  {
+    if (e.to == to)
+    {
+      return e.delay;
+    }
+  }
+  // TODO. might fall to here and be buggy. add Throw and FIX.
+  return 0.0;
 }
 
 void Simulation::print_nodes() const
