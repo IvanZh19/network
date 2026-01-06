@@ -8,7 +8,7 @@ struct Packet
   PacketId id;
   NodeId src;
   NodeId dst;
-  NodeId owner;
+  NodeId owner; // note: assume that a packet is "delivered" when dst==owner. may want to change later.
   int packet_size;
   SimTime creation_time;
 

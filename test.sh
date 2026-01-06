@@ -11,7 +11,20 @@ SRC=$(ls src/*.cpp | grep -v main.cpp)
 
 mkdir -p build
 
-for testfile in test/*.cpp; do
+# check if we just want a single file
+if [ $# -eq 0 ]; then
+  TESTFILES=$(ls test/*.cpp)
+else
+  TESTNAME="$1"
+  TESTFILE="test/$TESTNAME.cpp"
+  if [ ! -f "$TESTFILE" ]; then
+    echo "$TESTNAME not found"
+    exit 1
+  fi
+  TESTFILES="$TESTFILE"
+fi
+
+for testfile in $TESTFILES; do
   testname=$(basename "$testfile" .cpp)
   outfile="build/$testname.exe"
 
@@ -19,7 +32,10 @@ for testfile in test/*.cpp; do
   $CXX $CXXFLAGS $SRC $testfile -o $outfile
 done
 
-for exe in build/test_*.exe; do
+for testfile in $TESTFILES; do
+  testname=$(basename "$testfile" .cpp)
+  exe="build/$testname.exe"
+
   echo "Running $exe"
   $exe || exit 1
 done

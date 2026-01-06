@@ -12,7 +12,9 @@ This repo is for simulating network traffic.
 │   └── sim_types.hpp (These are the relevant types, mostly for human legibility and sanity.)
 ├── test/
 │   ├── test_event_queue.cpp (This tests that the event queue works with basic Events.)
-│   └── test_network.cpp (This tests that networks can be created.)
+│   ├── test_network.cpp (This tests that networks can be created.)
+│   ├── test_node_chain.cpp (This tests that Events and Nodes correctly trigger each other.)
+│   └── test_node_queues.cpp (This tests that Node queues and send_rate limit Packets.)
 ├── Makefile (This is the Makefile for building with main.cpp)
 ├── make_readme.sh (This script updates the README.)
 ├── run.sh (This script makes and runs the compiled code.)

@@ -12,9 +12,9 @@ int main()
 
   // TEST NODES.
 
-  NodeId zero = sim.add_node();
-  NodeId one = sim.add_node();
-  NodeId two = sim.add_node();
+  NodeId zero = sim.add_node(1.0);
+  NodeId one = sim.add_node(1.0);
+  NodeId two = sim.add_node(1.0);
 
   assert(zero==0);
   assert(one==1);
