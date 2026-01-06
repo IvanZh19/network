@@ -7,6 +7,7 @@
 #include "sim_types.hpp"
 #include "event.hpp"
 #include "node.hpp"
+#include "link.hpp"
 #include "packet.hpp"
 #include "strategy.hpp"
 
@@ -33,8 +34,8 @@ public:
   void add_directed_link(NodeId from, NodeId to, SimTime latency); // link nodes within the network. asserts they exist.
   void add_undirected_link(NodeId from, NodeId to, SimTime latency); // link both ways.
 
-  std::vector<Edge>& get_edges(NodeId id); // returns outgoing Edges for a Node.
-  SimTime get_weight(NodeId from, NodeId to); // return weight for an edge, assumes it exists.
+  std::vector<Link>& get_links(NodeId id); // returns outgoing Links for a Node.
+  SimTime get_weight(NodeId from, NodeId to); // return weight for a Link, assumes it exists.
 
   void print_nodes() const;
   void print_packets() const;
@@ -45,7 +46,7 @@ private:
 
   std::vector<std::unique_ptr<Node>> nodes;
   std::vector<std::unique_ptr<Packet>> packets;
-  std::vector<std::vector<Edge>> adj_list; // to store edge weights and network topology
+  std::vector<std::vector<Link>> adj_list;
 
   std::priority_queue<
       std::unique_ptr<Event>,

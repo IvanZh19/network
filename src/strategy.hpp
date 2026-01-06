@@ -43,7 +43,7 @@ public:
 
 private:
   NodeId self_id;
-  std::unordered_map<NodeId, NodeId> next_hop_lookup;
+  std::unordered_map<NodeId, NodeId> next_hop_lookup; // key=dest/target, value=best_neighbor
 
   void build_lookup(const Simulation& sim);
 
