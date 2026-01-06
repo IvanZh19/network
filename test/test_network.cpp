@@ -12,17 +12,17 @@ int main()
 
   // TEST NODES.
 
-  NodeId zero = sim.add_node(1.0);
-  NodeId one = sim.add_node(1.0);
-  NodeId two = sim.add_node(1.0);
+  NodeId zero = sim.add_node(1.0, std::make_unique<RandomNeighborStrategy>(0, sim));
+  NodeId one = sim.add_node(1.0, std::make_unique<RandomNeighborStrategy>(1, sim));
+  NodeId two = sim.add_node(1.0, std::make_unique<RandomNeighborStrategy>(2, sim));
 
   assert(zero==0);
   assert(one==1);
   assert(two==2);
 
-  Node n_zero = sim.get_node(zero);
-  Node n_one = sim.get_node(one);
-  Node n_two = sim.get_node(two);
+  Node& n_zero = sim.get_node(zero);
+  Node& n_one = sim.get_node(one);
+  Node& n_two = sim.get_node(two);
 
   assert(n_zero.id()==0);
   assert(n_one.id()==1);

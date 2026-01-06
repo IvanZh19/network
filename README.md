@@ -9,7 +9,9 @@ This repo is for simulating network traffic.
 │   ├── packet.hpp (This defines the Packet struct.)
 │   ├── sim.cpp (This is the implementation of the Simulation class.)
 │   ├── sim.hpp (This defines the interface for the Simulation class, to be used by main to interact with it)
-│   └── sim_types.hpp (These are the relevant types, mostly for human legibility and sanity.)
+│   ├── sim_types.hpp (These are the relevant types, mostly for human legibility and sanity.)
+│   ├── strategy.cpp (This implements the Strategy class and its subclasses.)
+│   └── strategy.hpp (This defines the interface for the Strategy class and subclasses, used by Nodes to make routing decisions.)
 ├── test/
 │   ├── test_event_queue.cpp (This tests that the event queue works with basic Events.)
 │   ├── test_network.cpp (This tests that networks can be created.)

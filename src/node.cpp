@@ -4,7 +4,7 @@
 #include "node.hpp"
 #include "packet.hpp"
 #include "sim.hpp"
-#include <random>
+#include "strategy.hpp"
 
 // NAIVE, INSTANT FORWARD IMPLEMENTATION OF RECEIVE_PACKET.
 // void Node::receive_packet(PacketId pid, Simulation& sim)
@@ -91,23 +91,8 @@ void Node::send_packet(Simulation& sim)
               }));
 }
 
-NodeId Node::choose_next_hop(const Packet& p, Simulation& sim) const
+NodeId Node::choose_next_hop(Packet& p, Simulation& sim) const
 {
-  // um implement stuff here.
-  // for now just do a random pick...
-  // assumes that we're not the dst.
-  std::vector<Edge>& edges = sim.get_edges(nid);
-
-  if (edges.empty())
-  {
-    return nid; // no neighbors... // TODO: possible bug where self to self does not exist.
-  }
-
-  static std::random_device rd;
-  static std::mt19937 gen(rd());
-  std::uniform_int_distribution<size_t> dist(0, edges.size()-1);
-
-  size_t index = dist(gen);
-  return edges[index].to;
-
+  // just access our strategy's decision.
+  return strategy->choose_next_hop(nid, p, sim);
 }

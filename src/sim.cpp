@@ -49,10 +49,10 @@ void Simulation::run()
   }
 }
 
-NodeId Simulation::add_node(SimTime send_rate)
+NodeId Simulation::add_node(SimTime send_rate, std::unique_ptr<Strategy> strategy)
 {
   NodeId id = nodes.size();
-  auto n = std::make_unique<Node>(nodes.size(), send_rate);
+  auto n = std::make_unique<Node>(nodes.size(), send_rate, std::move(strategy));
   nodes.push_back(std::move(n));
   adj_list.emplace_back(); // make empty edge list for this node
   return id;

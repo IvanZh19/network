@@ -8,6 +8,7 @@
 #include "event.hpp"
 #include "node.hpp"
 #include "packet.hpp"
+#include "strategy.hpp"
 
 class Simulation
 {
@@ -21,7 +22,7 @@ public:
   void step(); // executes the next event within the simulation.
   void run(); // step() until no more events are left.
 
-  NodeId add_node(SimTime send_rate); // add node, returns IDs starting from 0, send_rate controls queue speed.
+  NodeId add_node(SimTime send_rate, std::unique_ptr<Strategy> strategy); // add node, returns IDs starting from 0, send_rate controls queue speed.
   Node &get_node(NodeId id); // return Node& for the given id
 
   PacketId add_packet(NodeId source, NodeId dest, int packet_size, SimTime creation_time);

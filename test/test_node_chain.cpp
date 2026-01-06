@@ -9,10 +9,10 @@ int main()
 
   Simulation sim = Simulation();
 
-  NodeId zero = sim.add_node(1.0);
-  NodeId one = sim.add_node(1.0);
-  NodeId two = sim.add_node(1.0);
-  NodeId three = sim.add_node(1.0);
+  NodeId zero = sim.add_node(1.0, std::make_unique<RandomNeighborStrategy>(0, sim));
+  NodeId one = sim.add_node(1.0, std::make_unique<RandomNeighborStrategy>(1, sim));
+  NodeId two = sim.add_node(1.0, std::make_unique<RandomNeighborStrategy>(2, sim));
+  NodeId three = sim.add_node(1.0, std::make_unique<RandomNeighborStrategy>(3, sim));
 
   sim.add_directed_link(zero, one, 1.0);
   sim.add_directed_link(one, two, 2.0);

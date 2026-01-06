@@ -3,14 +3,16 @@
 #pragma once
 #include "sim_types.hpp"
 #include <queue>
+#include <memory>
 
 struct Packet;
 class Simulation; // note we have to forward decl here, include would break stuffs.
+class Strategy;
 
 class Node
 {
 public:
-  Node(NodeId id, SimTime rate) : nid(id), is_busy(false), send_rate(rate) {}
+  Node(NodeId id, SimTime rate, std::unique_ptr<Strategy> strat) : nid(id), is_busy(false), send_rate(rate), strategy(std::move(strat)) {}
 
   NodeId id() const { return nid; }
   bool busy() const { return is_busy; }
@@ -28,6 +30,8 @@ private:
 
   std::queue<PacketId> packet_queue;
 
-  NodeId choose_next_hop(const Packet& p, Simulation& sim) const;
+  std::unique_ptr<Strategy> strategy;
+
+  NodeId choose_next_hop(Packet& p, Simulation& sim) const;
 
 };
