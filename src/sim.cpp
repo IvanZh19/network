@@ -112,6 +112,17 @@ Link& Simulation::get_link(NodeId from, NodeId to)
   );
 }
 
+std::vector<NodeId> Simulation::get_nodes() const
+{
+  std::vector<NodeId> ids;
+  ids.reserve(nodes.size());
+  for (const auto& node_ptr : nodes)
+  {
+    ids.push_back(node_ptr->id());
+  }
+  return ids;
+}
+
 void Simulation::print_nodes() const
 {
   std::cout << "Nodes: \n";

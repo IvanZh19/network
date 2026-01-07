@@ -23,6 +23,11 @@ public:
   // send Event triggers this: Node pops the next packet and schedules another send if not empty.
   void send_packet(Simulation& sim);
 
+  void set_strategy(std::unique_ptr<Strategy> strat)
+  {
+    strategy = std::move(strat);
+  }
+
 private:
   NodeId nid;
   bool is_busy; // equivalent to "do we have a send-Event scheduled"

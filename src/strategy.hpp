@@ -4,9 +4,9 @@
 #include <unordered_map>
 #include <memory.h>
 #include "sim_types.hpp"
+#include "packet.hpp"
 
 class Simulation;
-struct Packet;
 
 // Base class
 // NOTE: the constructor for these ends up being pretty unwieldy and weird to use, should refactor later.
@@ -46,6 +46,6 @@ private:
   NodeId self_id;
   std::unordered_map<NodeId, NodeId> next_hop_lookup; // key=dest/target, value=best_neighbor
 
-  void build_lookup(const Simulation& sim);
+  void build_lookup(Simulation& sim);
 
 };

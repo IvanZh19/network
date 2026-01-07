@@ -37,6 +37,8 @@ public:
   std::vector<Link>& get_links(NodeId id); // returns outgoing Links for a Node.
   Link& get_link(NodeId from, NodeId to); // return Link reference, assuming it exists
 
+  std::vector<NodeId> get_nodes() const;
+
   void print_nodes() const;
   void print_packets() const;
   void print_adj_list() const;
