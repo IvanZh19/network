@@ -78,16 +78,16 @@ Packet &Simulation::get_packet(PacketId id)
   return *packets.at(id);
 }
 
-void Simulation::add_directed_link(NodeId from, NodeId to, SimTime latency)
+void Simulation::add_directed_link(NodeId from, NodeId to, SimTime propagation_delay, double bandwidth)
 {
   assert (from < nodes.size() && to < nodes.size());
-  adj_list[from].push_back(Link(from, to, latency));
+  adj_list[from].push_back(Link(from, to, propagation_delay, bandwidth));
 }
 
-void Simulation::add_undirected_link(NodeId from, NodeId to, SimTime latency)
+void Simulation::add_undirected_link(NodeId from, NodeId to, SimTime propagation_delay, double bandwidth)
 {
-  Simulation::add_directed_link(from, to, latency);
-  Simulation::add_directed_link(to, from, latency);
+  Simulation::add_directed_link(from, to, propagation_delay, bandwidth);
+  Simulation::add_directed_link(to, from, propagation_delay, bandwidth);
 }
 
 std::vector<Link>& Simulation::get_links(NodeId id)
@@ -96,19 +96,20 @@ std::vector<Link>& Simulation::get_links(NodeId id)
   return adj_list[id];
 }
 
-SimTime Simulation::get_weight(NodeId from, NodeId to)
+Link& Simulation::get_link(NodeId from, NodeId to)
 {
   std::vector<Link> links = get_links(from);
-  for (Link l : links)
+  for (Link& l : links)
   {
     if (l.to() == to)
     {
-      return l.latency();
+      return l;
     }
   }
-  // TODO. might fall to here and be buggy. add Throw and FIX.
-  assert(false);
-  return 0.0;
+  // TODO. might fall to here and be buggy. Throw for now.
+  throw std::runtime_error(
+    "No link found..."
+  );
 }
 
 void Simulation::print_nodes() const
@@ -139,7 +140,7 @@ void Simulation::print_adj_list() const
   for (NodeId i = 0; i < adj_list.size(); ++i) {
     std::cout << "- Node " << i << ": ";
     for (const Link &l : adj_list[i]) {
-      std::cout << "(" << l.from() << ", " << l.to() << ", " << l.latency() << ") ";
+      std::cout << "(" << l.from() << ", " << l.to() << ", " << l.propagation_delay() << ", " << l.bandwidth() << ") ";
     }
     std::cout << "\n";
   }

@@ -14,11 +14,11 @@ int main()
   NodeId two = sim.add_node(1.0, std::make_unique<RandomNeighborStrategy>(2, sim));
   NodeId three = sim.add_node(1.0, std::make_unique<RandomNeighborStrategy>(3, sim));
 
-  sim.add_directed_link(zero, one, 1.0);
-  sim.add_directed_link(one, two, 2.0);
-  sim.add_directed_link(two, three, 3.0);
+  sim.add_directed_link(zero, one, 1.0, 100);
+  sim.add_directed_link(one, two, 2.0, 100);
+  sim.add_directed_link(two, three, 3.0, 100);
 
-  sim.add_directed_link(one, zero, 4.0); // tests randomness
+  // sim.add_directed_link(one, zero, 4.0, 100); // tests randomness
 
   PacketId p_zero = sim.add_packet(zero, three, 5, 0.0);
 

@@ -23,7 +23,7 @@ public:
   void step(); // executes the next event within the simulation.
   void run(); // step() until no more events are left.
 
-  NodeId add_node(SimTime send_rate, std::unique_ptr<Strategy> strategy); // add node, returns IDs starting from 0, send_rate controls queue speed.
+  NodeId add_node(SimTime send_rate, std::unique_ptr<Strategy> strategy);
   Node &get_node(NodeId id); // return Node& for the given id
 
   PacketId add_packet(NodeId source, NodeId dest, int packet_size, SimTime creation_time);
@@ -31,11 +31,11 @@ public:
   // the owner of a Packet is assumed to be source at creation, and updates when the next node receives it.
   // it's assumed that Nodes and Packets can't be removed, so lookup by id is trivial.
 
-  void add_directed_link(NodeId from, NodeId to, SimTime latency); // link nodes within the network. asserts they exist.
-  void add_undirected_link(NodeId from, NodeId to, SimTime latency); // link both ways.
+  void add_directed_link(NodeId from, NodeId to, SimTime propagation_delay, double bandwidth); // assumes Nodes exist
+  void add_undirected_link(NodeId from, NodeId to, SimTime propagation_delay, double bandwidth); // link both ways.
 
   std::vector<Link>& get_links(NodeId id); // returns outgoing Links for a Node.
-  SimTime get_weight(NodeId from, NodeId to); // return weight for a Link, assumes it exists.
+  Link& get_link(NodeId from, NodeId to); // return Link reference, assuming it exists
 
   void print_nodes() const;
   void print_packets() const;

@@ -3,6 +3,7 @@ This repo is for simulating network traffic.
 .
 ├── src/
 │   ├── event.hpp (This defines the basic Event struct.)
+│   ├── link.hpp (This defines the Link class, representing the state of network edges.)
 │   ├── main.cpp (This is the main entry point. It handles and runs Simulation instances.)
 │   ├── node.cpp (This defines the behavior of Nodes.)
 │   ├── node.hpp (This defines the Node class, agents that react to Events and handle Packets.)

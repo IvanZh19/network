@@ -32,9 +32,9 @@ int main()
 
   // TEST EDGES
 
-  sim.add_directed_link(zero, one, 1.0);
-  sim.add_directed_link(one, zero, 2.0);
-  sim.add_undirected_link(zero, two, 3.0);
+  sim.add_directed_link(zero, one, 1.0, 100);
+  sim.add_directed_link(one, zero, 2.0, 100);
+  sim.add_undirected_link(zero, two, 3.0, 100);
 
   sim.print_adj_list();
 

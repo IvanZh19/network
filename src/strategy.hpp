@@ -10,6 +10,7 @@ struct Packet;
 
 // Base class
 // NOTE: the constructor for these ends up being pretty unwieldy and weird to use, should refactor later.
+// maybe can write a helper function file that just calls this, but just to prettify
 
 class Strategy
 {

@@ -53,12 +53,12 @@ void Node::receive_packet(PacketId pid, Simulation& sim)
 
 void Node::send_packet(Simulation& sim)
 {
-  std::cout << "Node " << nid << " sending next Packet " << " at t=" << sim.now() << std::endl;
+  // std::cout << "Node " << nid << " handling next Packet " << " at t=" << sim.now() << std::endl;
 
   // if somehow nothing to send, not busy anymore
   if (packet_queue.empty())
   {
-    std::cout << "Nevermind, Node " << nid << " has no Packets" << std::endl;
+    std::cout << "Node " << nid << " has no Packets" << std::endl;
 
     is_busy = false;
     return;
@@ -66,29 +66,48 @@ void Node::send_packet(Simulation& sim)
 
   is_busy = true;
 
+  // pop next Packet to send
   PacketId pid = packet_queue.front();
   packet_queue.pop();
 
+  std::cout << "Node " << nid << " handling Packet " << pid << " at t=" << sim.now() << std::endl;
+
+  // get Packet and next hop.
   Packet& p = sim.get_packet(pid);
   NodeId next = choose_next_hop(p, sim);
 
-  SimTime arrival_time = sim.now() + sim.get_weight(nid, next);
-  SimTime next_send_time = sim.now() + send_rate;
+  // reserve/schedule this Packet on that Link
+  Link& link = sim.get_link(nid, next);
+  SimTime arrival_time = link.reserve(p, sim.now()); // time when it fully arrives at next
+  SimTime node_ready_time = sim.now() + send_rate; // our own send_rate cooldown. NOT link related.
 
   // packet arrival for next node
   sim.schedule(std::make_unique<Event>(arrival_time,
           [&sim, next, pid]() {sim.get_node(next).receive_packet(pid, sim); }));
 
-  // schedule event to try sending again later if still busy, or mark as not busy anymore.
-  sim.schedule(std::make_unique<Event>(next_send_time,
-          [this, &sim]()
-              {
-                is_busy = false;
+  // schedule send another check later.
+  // sim.schedule(std::make_unique<Event>(node_ready_time,
+  //       [this, &sim]()
+  //           {
+  //             is_busy = false;
 
-                if (!packet_queue.empty()) {
-                  this->send_packet(sim);
-                }
-              }));
+  //             if (!packet_queue.empty()) {
+  //               this->send_packet(sim);
+  //             }
+  //           }));
+
+
+  // // if queue still has stuff, schedule another send attempt
+  if (!packet_queue.empty())
+  {
+    sim.schedule(std::make_unique<Event>(
+      node_ready_time, [this, &sim]() { this->send_packet(sim); }
+    ));
+  }
+  else
+  {
+    is_busy = false;
+  }
 }
 
 NodeId Node::choose_next_hop(Packet& p, Simulation& sim) const

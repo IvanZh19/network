@@ -16,7 +16,7 @@ if [ $# -eq 0 ]; then
   TESTFILES=$(ls test/*.cpp)
 else
   TESTNAME="$1"
-  TESTFILE="test/$TESTNAME.cpp"
+  TESTFILE="$TESTNAME"
   if [ ! -f "$TESTFILE" ]; then
     echo "$TESTNAME not found"
     exit 1
