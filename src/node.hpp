@@ -28,6 +28,9 @@ public:
     strategy = std::move(strat);
   }
 
+  // used by other Nodes to access this one's strategy
+  Strategy& get_strategy() const { return *strategy; }
+
 private:
   NodeId nid;
   bool is_busy; // equivalent to "do we have a send-Event scheduled"

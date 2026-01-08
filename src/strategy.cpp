@@ -27,13 +27,14 @@ NodeId RandomNeighborStrategy::choose_next_hop(NodeId self_id, Packet& p, Simula
 
 }
 
-void ShortestPathStrategy::build_lookup(Simulation& sim, double propagation_delay_factor, double bandwidth_factor, double fixed)
+std::unordered_map<NodeId, RouteInfo> build_lookup(NodeId self_id, Simulation& sim, double propagation_delay_factor, double bandwidth_factor, double fixed)
 {
   using pq_element = std::pair<SimTime, NodeId>;
   std::priority_queue<pq_element, std::vector<pq_element>, std::greater<>> pq;
 
   std::unordered_map<NodeId, SimTime> dist;
   std::unordered_map<NodeId, NodeId> first_hop;
+  std::unordered_map<NodeId, RouteInfo> lookup;
 
   for (const auto& node_id : sim.get_nodes())
   {
@@ -76,21 +77,72 @@ void ShortestPathStrategy::build_lookup(Simulation& sim, double propagation_dela
 
   }
 
-  next_hop_lookup = std::move(first_hop);
+  for (const auto& kv_pair : first_hop)
+  {
+    NodeId target = kv_pair.first;
+    NodeId neighbor = kv_pair.second;
+    lookup[target] = {neighbor, dist[target]};
+  }
 
+  return lookup;
 }
 
-NodeId ShortestPathStrategy::choose_next_hop(NodeId self_id, Packet& p, Simulation& sim) const
+RouteInfo ShortestPathStrategy::get_route_info(NodeId dst) const
 {
-  auto it = next_hop_lookup.find(p.dst);
+  auto it = next_hop_lookup.find(dst);
   if (it != next_hop_lookup.end())
   {
-    return it->second;
+    return it->second; // returns NEXT NEIGHBOR and TOTAL DISTANCE
   }
   else
   {
     // not reachable from us... just return self_id for now
-    std::cout << "Node has no route to destination. Returning self" << std::endl;
-    return self_id;
+    std::cout << "Node " << self_id << " has no route to destination. Returning self" << std::endl;
+    return std::make_pair(self_id, 0.0);
   }
+}
+
+NodeId ShortestPathStrategy::choose_next_hop(NodeId self_id, Packet& p, Simulation& sim) const
+{
+  return get_route_info(p.dst).first;
+}
+
+// note this is the same as ShortestPathStrategy
+RouteInfo CongestionAwareStrategy::get_route_info(NodeId dst) const
+{
+  auto it = next_hop_lookup.find(dst);
+  if (it != next_hop_lookup.end())
+  {
+    return it->second; // returns the NEIGHBOR in RouteInfo
+  }
+  else
+  {
+    // not reachable from us... just return self_id for now
+    std::cout << "Node " << self_id << " has no route to destination. Returning self" << std::endl;
+    return std::make_pair(self_id, 0.0);
+  }
+}
+
+NodeId CongestionAwareStrategy::choose_next_hop(NodeId self_id, Packet& p, Simulation& sim) const
+{
+  NodeId best_neighbor = self_id;
+  SimTime best_estimate = std::numeric_limits<SimTime>::infinity();
+
+  // go through the Links. Return neighbor with minimized "estimate to get there" + "distance metric after that"
+  for (const Link& l : sim.get_links(self_id))
+  {
+    NodeId n = l.to();
+    const Strategy& neighbor_strat = sim.get_node(n).get_strategy();
+
+    SimTime estimate = (this->congestion_factor * (std::max(sim.now(), l.next_free_time()) - sim.now()))
+                      + l.propagation_delay()
+                      + p.packet_size / l.bandwidth()
+                      + neighbor_strat.get_route_info(p.dst).second;
+    if (estimate < best_estimate)
+    {
+      best_neighbor = n;
+    }
+  }
+
+  return best_neighbor;
 }

@@ -3,6 +3,7 @@
 #pragma once
 #include "sim_types.hpp"
 #include "packet.hpp"
+#include <iostream>
 
 class Link
 {
@@ -15,6 +16,7 @@ public:
   NodeId to() const { return to_; }
   SimTime propagation_delay() const { return propagation_delay_; }
   double bandwidth() const { return bandwidth_; }
+  SimTime next_free_time() const { return next_free_time_; }
   bool free_at(SimTime now) const { return now >= next_free_time_; }
 
   // Nodes must call this function so that Packets finish transmitting across this link
@@ -24,6 +26,7 @@ public:
     SimTime tx_time = p.packet_size / bandwidth_;
     next_free_time_ = tx_start_time + tx_time;
     SimTime arrival_time = tx_start_time + tx_time + propagation_delay_;
+    std::cout << "next_free_time_: " << next_free_time_ << std::endl;
     return arrival_time;
   }
 
