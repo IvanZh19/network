@@ -27,7 +27,7 @@ NodeId RandomNeighborStrategy::choose_next_hop(NodeId self_id, Packet& p, Simula
 
 }
 
-void ShortestPathStrategy::build_lookup(Simulation& sim)
+void ShortestPathStrategy::build_lookup(Simulation& sim, double propagation_delay_factor, double bandwidth_factor, double fixed)
 {
   using pq_element = std::pair<SimTime, NodeId>;
   std::priority_queue<pq_element, std::vector<pq_element>, std::greater<>> pq;
@@ -60,7 +60,7 @@ void ShortestPathStrategy::build_lookup(Simulation& sim)
     for (const Link& l : sim.get_links(u))
     {
       NodeId v = l.to();
-      SimTime cost = l.propagation_delay();
+      SimTime cost = (propagation_delay_factor * l.propagation_delay()) + (bandwidth_factor / l.bandwidth()) + fixed;
       SimTime new_dist = cur_dist + cost;
 
       if (new_dist < dist[v])

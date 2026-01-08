@@ -35,10 +35,11 @@ private:
 class ShortestPathStrategy : public Strategy
 {
 public:
-  ShortestPathStrategy(NodeId self_id, Simulation& sim)
+  // The "cost" of a Link is (propagation_delay_factor * propagation_delay) + (bandwidth_factor / bandwidth) + fixed
+  ShortestPathStrategy(NodeId self_id, Simulation& sim, double propagation_delay_factor, double bandwidth_factor, double fixed)
     : self_id(self_id)
   {
-    build_lookup(sim); // this would modify next hop lookup table.
+    build_lookup(sim, propagation_delay_factor, bandwidth_factor, fixed); // this would modify next hop lookup table.
   }
   NodeId choose_next_hop(NodeId self_id, Packet& p, Simulation& sim) const override;
 
@@ -46,6 +47,6 @@ private:
   NodeId self_id;
   std::unordered_map<NodeId, NodeId> next_hop_lookup; // key=dest/target, value=best_neighbor
 
-  void build_lookup(Simulation& sim);
+  void build_lookup(Simulation& sim, double propagation_delay_factor, double bandwidth_factor, double fixed);
 
 };
