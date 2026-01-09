@@ -79,7 +79,10 @@ void Node::send_packet(Simulation& sim)
   // reserve/schedule this Packet on that Link
   Link& link = sim.get_link(nid, next);
   SimTime arrival_time = link.reserve(p, sim.now()); // time when it fully arrives at next
-  SimTime node_ready_time = sim.now() + send_rate; // our own send_rate cooldown. NOT link related.
+
+  // next ready when both link and us are free. because of how scheduling Events and sim.now()
+  // works, this max is necessary to also account for the link's actual next start time.
+  SimTime node_ready_time = std::max(sim.now() + send_rate, link.next_free_time());
 
   // packet arrival for next node
   sim.schedule(std::make_unique<Event>(arrival_time,

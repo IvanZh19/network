@@ -26,7 +26,6 @@ public:
     SimTime tx_time = p.packet_size / bandwidth_;
     next_free_time_ = tx_start_time + tx_time;
     SimTime arrival_time = tx_start_time + tx_time + propagation_delay_;
-    std::cout << "next_free_time_: " << next_free_time_ << std::endl;
     return arrival_time;
   }
 
