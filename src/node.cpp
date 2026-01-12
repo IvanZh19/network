@@ -83,22 +83,11 @@ void Node::send_packet(Simulation& sim)
   // next ready when both link and us are free. because of how scheduling Events and sim.now()
   // works, this max is necessary to also account for the link's actual next start time.
   SimTime node_ready_time = std::max(sim.now() + send_rate, link.next_free_time());
+  // SimTime node_ready_time = sim.now() + send_rate;
 
   // packet arrival for next node
   sim.schedule(std::make_unique<Event>(arrival_time,
           [&sim, next, pid]() {sim.get_node(next).receive_packet(pid, sim); }));
-
-  // schedule send another check later.
-  // sim.schedule(std::make_unique<Event>(node_ready_time,
-  //       [this, &sim]()
-  //           {
-  //             is_busy = false;
-
-  //             if (!packet_queue.empty()) {
-  //               this->send_packet(sim);
-  //             }
-  //           }));
-
 
   // // if queue still has stuff, schedule another send attempt
   if (!packet_queue.empty())

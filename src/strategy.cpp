@@ -89,6 +89,10 @@ std::unordered_map<NodeId, RouteInfo> build_lookup(NodeId self_id, Simulation& s
 
 RouteInfo ShortestPathStrategy::get_route_info(NodeId dst) const
 {
+  if (self_id == dst)
+  {
+    return {self_id, 0};
+  }
   auto it = next_hop_lookup.find(dst);
   if (it != next_hop_lookup.end())
   {
@@ -110,10 +114,14 @@ NodeId ShortestPathStrategy::choose_next_hop(NodeId self_id, Packet& p, Simulati
 // note this is the same as ShortestPathStrategy
 RouteInfo CongestionAwareStrategy::get_route_info(NodeId dst) const
 {
+  if (self_id == dst)
+  {
+    return {self_id, 0};
+  }
   auto it = next_hop_lookup.find(dst);
   if (it != next_hop_lookup.end())
   {
-    return it->second; // returns the NEIGHBOR in RouteInfo
+    return it->second;
   }
   else
   {
@@ -134,13 +142,14 @@ NodeId CongestionAwareStrategy::choose_next_hop(NodeId self_id, Packet& p, Simul
     NodeId n = l.to();
     const Strategy& neighbor_strat = sim.get_node(n).get_strategy();
 
-    SimTime estimate = (this->congestion_factor * (std::max(sim.now(), l.next_free_time()) - sim.now()))
+    SimTime estimate = (this->congestion_factor * (l.next_free_time() - sim.now()))
                       + l.propagation_delay()
                       + p.packet_size / l.bandwidth()
                       + neighbor_strat.get_route_info(p.dst).second;
     if (estimate < best_estimate)
     {
       best_neighbor = n;
+      best_estimate = estimate;
     }
   }
 

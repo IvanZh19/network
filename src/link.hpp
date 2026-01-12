@@ -3,7 +3,6 @@
 #pragma once
 #include "sim_types.hpp"
 #include "packet.hpp"
-#include <iostream>
 
 class Link
 {

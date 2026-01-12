@@ -10,11 +10,14 @@
 #include "link.hpp"
 #include "packet.hpp"
 #include "strategy.hpp"
+#include "net_generator.hpp"
 
 class Simulation
 {
 public:
   Simulation();
+
+  void initialize(NetworkDesc&& desc);
 
   SimTime now() const; // get the current time of the simulation
   bool done() const;   // true if no more events will occur

@@ -15,6 +15,24 @@ Simulation::Simulation()
   // note that other fields are fine as is, will get changed by methods.
 }
 
+void Simulation::initialize(NetworkDesc&& desc)
+{
+  for (auto& n : desc.nodes)
+  {
+    add_node(n.send_rate, std::move(n.strategy));
+  }
+
+  for (auto& l : desc.links)
+  {
+    add_directed_link(l.from, l.to, l.propagation_delay, l.bandwidth);
+  }
+
+  for (auto& p : desc.packets)
+  {
+    add_packet(p.src, p.dst, p.packet_size, p.creation_time);
+  }
+}
+
 SimTime Simulation::now() const
 {
   return current_time;
