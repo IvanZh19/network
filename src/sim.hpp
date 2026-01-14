@@ -10,6 +10,7 @@
 #include "link.hpp"
 #include "packet.hpp"
 #include "strategy.hpp"
+#include "logger.hpp"
 
 struct NetworkDesc;
 
@@ -52,6 +53,9 @@ public:
   void print_packets() const;
   void print_adj_list() const;
 
+  void log(EventRecord er) { logger.log(er); }
+  void dump_csv(const std::string &filename) { logger.dump_csv(filename); }
+
 private:
   SimTime current_time;
 
@@ -64,4 +68,6 @@ private:
       std::vector<std::unique_ptr<Event>>,
       EventCompare>
       event_queue;
+
+  Logger logger;
 };

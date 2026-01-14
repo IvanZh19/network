@@ -32,5 +32,7 @@ int main()
 
   sim.run();
 
+  sim.dump_csv("build/logs/test_node_chain.csv");
+
   std::cout << "test_node_chain: Simulation finished at t=" << sim.now() << std::endl;
 }

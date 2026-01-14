@@ -1,6 +1,6 @@
 // [treesource] This defines the behavior of Nodes.
 
-#include <iostream>
+// #include <iostream>
 #include "node.hpp"
 #include "packet.hpp"
 #include "sim.hpp"
@@ -28,9 +28,20 @@
 
 void Node::receive_packet(PacketId pid, Simulation& sim)
 {
-  std::cout << "Node " << nid << " received Packet " << pid << " at t=" << sim.now() << std::endl;
+  // std::cout << "Node " << nid << " received Packet " << pid << " at t=" << sim.now() << std::endl;
 
   Packet& p = sim.get_packet(pid);
+
+  if (p.owner == nid)
+  {
+    // note that if from == nid, this usually means that we are src, and a receive_packet event was triggered on us to begin
+    // this is assumed to be equivalent to create packet
+    sim.log({sim.now(), EventType::PacketCreate, p.src, p.dst, p.id});
+  }
+  else
+  {
+    sim.log({sim.now(), EventType::PacketReceive, p.owner, nid, p.id});
+  }
 
   p.owner = nid; // we're now the owner.
 
@@ -58,7 +69,7 @@ void Node::send_packet(Simulation& sim)
   // if somehow nothing to send, not busy anymore
   if (packet_queue.empty())
   {
-    std::cout << "Node " << nid << " has no Packets" << std::endl;
+    // std::cout << "Node " << nid << " has no Packets" << std::endl;
 
     is_busy = false;
     return;
@@ -70,7 +81,7 @@ void Node::send_packet(Simulation& sim)
   PacketId pid = packet_queue.front();
   packet_queue.pop();
 
-  std::cout << "Node " << nid << " handling Packet " << pid << " at t=" << sim.now() << std::endl;
+  // std::cout << "Node " << nid << " handling Packet " << pid << " at t=" << sim.now() << std::endl;
 
   // get Packet and next hop.
   Packet& p = sim.get_packet(pid);
@@ -88,6 +99,9 @@ void Node::send_packet(Simulation& sim)
   // packet arrival for next node
   sim.schedule(std::make_unique<Event>(arrival_time,
           [&sim, next, pid]() {sim.get_node(next).receive_packet(pid, sim); }));
+
+  // above line is what we consider "sending" Packet, so log it.
+  sim.log({sim.now(), EventType::PacketSend, nid, next, pid});
 
   // // if queue still has stuff, schedule another send attempt
   if (!packet_queue.empty())

@@ -3,5 +3,5 @@
 #pragma once
 
 using SimTime = double;
-using PacketId = long long unsigned int;
-using NodeId = long long unsigned int;
+using PacketId = long long int;
+using NodeId = long long int;

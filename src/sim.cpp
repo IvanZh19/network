@@ -13,6 +13,7 @@
 Simulation::Simulation()
 {
   current_time = 0.0;
+  logger = Logger();
   // note that other fields are fine as is, will get changed by methods.
 }
 

@@ -4,6 +4,7 @@ This repo is for simulating network traffic.
 ├── src/
 │   ├── event.hpp (This defines the basic Event struct.)
 │   ├── link.hpp (This defines the Link class, representing the state of network edges.)
+│   ├── logger.hpp (This defines the interface for Logger, for recording simulation behavior.)
 │   ├── main.cpp (This is the main entry point. It handles and runs Simulation instances.)
 │   ├── net_desc.hpp (This defines the structs used to aid the NetworkGenerator class.)
 │   ├── net_generator.cpp (This implements the NetworkGenerator class.)
