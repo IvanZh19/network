@@ -72,6 +72,18 @@ void Simulation::schedule(std::unique_ptr<Event> e)
   event_queue.push(std::move(e)); // move ownership into queue
 }
 
+void Simulation::schedule_all_packets(Simulation& sim)
+{
+  for (auto& p : packets)
+  {
+    PacketId pid = p->id;
+    NodeId psrc = p->src;
+    sim.schedule(std::make_unique<Event>(sim.now(),
+    [pid, psrc, &sim](){sim.get_node(psrc).receive_packet(pid, sim); }));
+
+  }
+}
+
 void Simulation::step()
 {
   assert(!done());

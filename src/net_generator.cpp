@@ -34,20 +34,23 @@ NetworkDesc NetworkGenerator::random_connected(
   }
 
   // guarantee connectivity, spanning tree with root at node 0.
+  // undirected edges, with same delay and bandwidth.
   for (NodeId i = 1; i < num_nodes; ++i)
   {
     std::uniform_int_distribution<NodeId> parent_dist(0, i-1);
     NodeId parent = parent_dist(rng);
+    SimTime random_delay = rand_delay(min_delay, max_delay);
+    double random_bandwidth = rand_bandwidth(min_bandwidth, max_bandwidth);
     desc.links.push_back({
       parent,
       i,
-      rand_delay(min_delay, max_delay),
-      rand_bandwidth(min_bandwidth, max_bandwidth)});
+      random_delay,
+      random_bandwidth});
     desc.links.push_back({
       i,
       parent,
-      rand_delay(min_delay, max_delay),
-      rand_bandwidth(min_bandwidth, max_bandwidth)});
+      random_delay,
+      random_bandwidth});
   }
 
   std::uniform_int_distribution<NodeId> node_dist(0, num_nodes-1);

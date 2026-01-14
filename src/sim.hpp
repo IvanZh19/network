@@ -28,6 +28,7 @@ public:
   bool done() const;   // true if no more events will occur
 
   void schedule(std::unique_ptr<Event> e); // add an event to the simulation.
+  void schedule_all_packets(Simulation& sim); // schedules initial event for all packets.
   void step(); // executes the next event within the simulation.
   void run(); // step() until no more events are left.
 

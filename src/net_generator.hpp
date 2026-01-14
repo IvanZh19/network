@@ -11,6 +11,7 @@ public:
   explicit NetworkGenerator(unsigned seed = std::random_device{}());
 
   // this is guaranteed to contain an undirected spanning tree
+  // undirected edges have the same latency and bandwidth.
   // but nodes all have nullptr for strategy.
   // call sim.initialize_strategies after.
   NetworkDesc random_connected(

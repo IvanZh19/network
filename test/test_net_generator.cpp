@@ -15,7 +15,7 @@ int main()
 
   NetworkDesc net_desc = net_gen.random_connected(10, 20, 5, 10, 1, 100);
 
-  net_gen.add_uniform_random_packets(net_desc, 100, 1, 10, 0, 0);
+  net_gen.add_uniform_random_packets(net_desc, 20, 1, 10, 0, 0);
 
   sim.initialize_topology(net_desc);
 
@@ -24,6 +24,8 @@ int main()
   sim.print_nodes();
   sim.print_adj_list();
   sim.print_packets();
+
+  sim.schedule_all_packets(sim);
 
   sim.run();
 
