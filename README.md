@@ -20,6 +20,7 @@ This repo is for simulating network traffic.
 │   ├── test_congestion_aware.cpp (This tests that congestion influnces routing decisions.)
 │   ├── test_event_queue.cpp (This tests that the event queue works with basic Events.)
 │   ├── test_link_serializing.cpp (This tests that Links serialize Packets properly.)
+│   ├── test_net_generator.cpp (This tests that basic network generation works as expected.)
 │   ├── test_network.cpp (This tests that networks can be created.)
 │   ├── test_node_chain.cpp (This tests that Events and Nodes correctly trigger each other.)
 │   ├── test_node_queues.cpp (This tests that Node queues and send_rate limit Packets.)

@@ -8,6 +8,7 @@
 #include <iostream>
 #include <memory>
 #include <assert.h>
+#include "net_desc.hpp"
 
 Simulation::Simulation()
 {
@@ -15,11 +16,11 @@ Simulation::Simulation()
   // note that other fields are fine as is, will get changed by methods.
 }
 
-void Simulation::initialize(NetworkDesc&& desc)
+void Simulation::initialize_topology(NetworkDesc& desc)
 {
   for (auto& n : desc.nodes)
   {
-    add_node(n.send_rate, std::move(n.strategy));
+    add_node(n.send_rate, nullptr);
   }
 
   for (auto& l : desc.links)
@@ -30,6 +31,29 @@ void Simulation::initialize(NetworkDesc&& desc)
   for (auto& p : desc.packets)
   {
     add_packet(p.src, p.dst, p.packet_size, p.creation_time);
+  }
+}
+
+void Simulation::initialize_strategies(StrategyPick strategy, std::vector<double> strategy_params, Simulation& sim)
+{
+  for (auto& n : nodes)
+  {
+    switch (strategy) {
+      case StrategyPick::RandomNeighborStrategy_ :
+        assert(strategy_params.size() == 0);
+        n->set_strategy(std::make_unique<RandomNeighborStrategy>(n->id(), sim));
+        break;
+      case StrategyPick::ShortestPathStrategy_ :
+        assert(strategy_params.size() == 3);
+        n->set_strategy(std::make_unique<ShortestPathStrategy>(n->id(),
+        sim, strategy_params[0], strategy_params[1], strategy_params[2]));
+        break;
+      case StrategyPick::CongestionAwareStrategy_ :
+        assert(strategy_params.size() == 4);
+        n->set_strategy(std::make_unique<CongestionAwareStrategy>(n->id(),
+        sim, strategy_params[0], strategy_params[1], strategy_params[2], strategy_params[3]));
+        break;
+    }
   }
 }
 
