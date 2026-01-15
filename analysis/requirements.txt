@@ -1,0 +1,4 @@
+# [treesource] These are the requirements for the analysis scripts.
+
+matplotlib
+networkx
