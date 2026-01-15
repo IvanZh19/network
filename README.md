@@ -1,6 +1,23 @@
+# network
+
 This repo is for simulating network traffic.
+
+It centers around the Simulation class.
+Some features are:
+- Use randomly generated topologies and Packet distributions
+- Model Node routing strategies and Link constraints
+- Step through Events in the Simulation
+- Log results for analysis
+
+For analysis, be sure to download the requirements.
+The analysis scripts have some simple visualization and metrics capabilities.
+
 ```
 .
+├── analysis/
+│   ├── analyze.py (This script computes and plots metrics from simulation results. May switch to NumPy.)
+│   ├── requirements.txt (These are the requirements for the analysis scripts.)
+│   └── visualize.py (This script visualizes simulation results. Currently does not support step through.)
 ├── src/
 │   ├── event.hpp (This defines the basic Event struct.)
 │   ├── link.hpp (This defines the Link class, representing the state of network edges.)
@@ -30,5 +47,4 @@ This repo is for simulating network traffic.
 ├── make_readme.sh (This script updates the README.)
 ├── run.sh (This script makes and runs the compiled code.)
 └── test.sh (This script runs all the tests in the tests folder.)
-
 ```
