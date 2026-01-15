@@ -31,8 +31,9 @@ int main()
 
   sim.run();
 
-  sim.dump_csv("build/logs/test_node_queues.csv");
-
+  sim.export_log("build/logs/test_node_queues.csv");
+  sim.export_packets("build/packets/test_node_queues.csv");
+  sim.export_network("build/networks/test_node_queues.json");
 
   std::cout << "test_node_queues: Simulation finished at t=" << sim.now() << std::endl;
 }

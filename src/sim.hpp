@@ -54,7 +54,15 @@ public:
   void print_adj_list() const;
 
   void log(EventRecord er) { logger.log(er); }
-  void dump_csv(const std::string &filename) { logger.dump_csv(filename); }
+
+  // export as csv
+  void export_log(const std::string &filename) const { logger.dump_csv(filename); }
+
+  // export as csv
+  void export_packets(const std::string &filename) const;
+
+  // export as
+  void export_network(const std::string &filename) const;
 
 private:
   SimTime current_time;

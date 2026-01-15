@@ -16,6 +16,7 @@ public:
 
   NodeId id() const { return nid; }
   bool busy() const { return is_busy; }
+  SimTime rate() const { return send_rate; }
 
   // packet-arrival Event triggers this: Node adds the packet to its queue.
   void receive_packet(PacketId pid, Simulation& sim);

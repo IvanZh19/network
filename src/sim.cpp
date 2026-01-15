@@ -9,6 +9,7 @@
 #include <memory>
 #include <assert.h>
 #include "net_desc.hpp"
+#include <fstream>
 
 Simulation::Simulation()
 {
@@ -210,4 +211,70 @@ void Simulation::print_adj_list() const
     }
     std::cout << "\n";
   }
+}
+
+void Simulation::export_packets(const std::string &filename) const
+{
+  std::ofstream out(filename);
+  if (!out)
+  {
+    throw std::runtime_error("Failed to open packets file");
+  }
+
+  out << "id,src,dst,owner,packet_size,creation_time\n";
+
+  for (const auto& p : packets)
+  {
+    out << p->id << ","
+        << p->src << ","
+        << p->dst << ","
+        << p->owner << ","
+        << p->packet_size << ","
+        << p->creation_time << "\n";
+  }
+}
+
+void Simulation::export_network(const std::string &filename) const
+{
+  std::ofstream out(filename);
+  if (!out)
+  {
+    throw std::runtime_error("Failed to open network file");
+  }
+
+  out << "{\n";
+
+  out << "  \"nodes\": [\n";
+  for (size_t i = 0; i < nodes.size(); ++i)
+  {
+    const auto& n = nodes[i];
+    out << "    { "
+        << "\"nid\": " << n->id()
+        << ", \"send_rate\": " << n->rate()
+        << " }";
+    if (i + 1 < nodes.size()) out << ",";
+    out << "\n";
+  }
+  out << "  ],\n";
+
+  out << "  \"links\": [\n";
+  bool first = true;
+  for (const auto& links : adj_list)
+  {
+    for (const auto& l : links)
+    {
+      if (!first) out << ",\n";
+      first = false;
+
+      out << "    { "
+          << "\"from\": " << l.from()
+          << ", \"to\": " << l.to()
+          << ", \"propagation_delay\": " << l.propagation_delay()
+          << ", \"bandwidth\": " << l.bandwidth()
+          << " }";
+    }
+  }
+
+  out << "\n  ]\n";
+  out << "}\n";
 }

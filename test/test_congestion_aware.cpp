@@ -42,7 +42,11 @@ int main()
 
   sim.run();
 
-  sim.dump_csv("build/logs/test_congestion_aware.csv");
+  sim.export_log("build/logs/test_congestion_aware.csv");
+  sim.export_packets("build/packets/test_congestion_aware.csv");
+  sim.export_network("build/networks/test_congestion_aware.json");
+
+
 
   std::cout << "test_congestion_aware: Simulation finished at t=" << sim.now() << std::endl;
 

@@ -36,7 +36,9 @@ int main()
   sim1.get_node(zero1).receive_packet(pid1, sim1);
   sim1.run();
 
-  sim1.dump_csv("build/logs/test_shortest_paths_1.csv");
+  sim1.export_log("build/logs/test_shortest_paths_1.csv");
+  sim1.export_packets("build/packets/test_shortest_paths_1.csv");
+  sim1.export_network("build/networks/test_shortest_paths_1.json");
 
   assert(sim1.now() == 2.02);
 
@@ -70,7 +72,9 @@ int main()
   sim2.get_node(zero2).receive_packet(pid2, sim2);
   sim2.run();
 
-  sim2.dump_csv("build/logs/test_shortest_paths_2.csv");
+  sim2.export_log("build/logs/test_shortest_paths_2.csv");
+  sim2.export_packets("build/packets/test_shortest_paths_2.csv");
+  sim2.export_network("build/networks/test_shortest_paths_2.json");
 
   assert(sim2.now() == 2.02);
 
@@ -104,7 +108,9 @@ int main()
   sim3.get_node(zero3).receive_packet(pid3, sim3);
   sim3.run();
 
-  sim3.dump_csv("build/logs/test_shortest_paths_3.csv");
+  sim3.export_log("build/logs/test_shortest_paths_3.csv");
+  sim3.export_packets("build/packets/test_shortest_paths_3.csv");
+  sim3.export_network("build/networks/test_shortest_paths_3.json");
 
   assert(sim3.now() == 2.02);
 
@@ -138,7 +144,9 @@ int main()
   sim4.get_node(zero4).receive_packet(pid4, sim4);
   sim4.run();
 
-  sim4.dump_csv("build/logs/test_shortest_paths_4.csv");
+  sim4.export_log("build/logs/test_shortest_paths_4.csv");
+  sim4.export_packets("build/packets/test_shortest_paths_4.csv");
+  sim4.export_network("build/networks/test_shortest_paths_4.json");
 
   assert(sim4.now() == 1001.02);
 

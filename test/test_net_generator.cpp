@@ -29,7 +29,9 @@ int main()
 
   sim.run();
 
-  sim.dump_csv("build/logs/test_net_generator.csv");
+  sim.export_log("build/logs/test_net_generator.csv");
+  sim.export_packets("build/packets/test_net_generator.csv");
+  sim.export_network("build/networks/test_net_generator.json");
 
   std::cout << "test_net_generator: Simulation finished at t=" << sim.now() << std::endl;
 
