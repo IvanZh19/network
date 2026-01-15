@@ -36,6 +36,8 @@ int main()
   sim1.get_node(zero1).receive_packet(pid1, sim1);
   sim1.run();
 
+  sim1.dump_csv("build/logs/test_shortest_paths_1.csv");
+
   assert(sim1.now() == 2.02);
 
   std::cout << "test_shortest_paths: Simulation 1 finished at t=" << sim1.now() << std::endl;
@@ -67,6 +69,8 @@ int main()
   // jank... technically forcing this without matching Event but.
   sim2.get_node(zero2).receive_packet(pid2, sim2);
   sim2.run();
+
+  sim2.dump_csv("build/logs/test_shortest_paths_2.csv");
 
   assert(sim2.now() == 2.02);
 
@@ -100,6 +104,8 @@ int main()
   sim3.get_node(zero3).receive_packet(pid3, sim3);
   sim3.run();
 
+  sim3.dump_csv("build/logs/test_shortest_paths_3.csv");
+
   assert(sim3.now() == 2.02);
 
   std::cout << "test_shortest_paths: Simulation 3 finished at t=" << sim3.now() << std::endl;
@@ -131,6 +137,8 @@ int main()
 
   sim4.get_node(zero4).receive_packet(pid4, sim4);
   sim4.run();
+
+  sim4.dump_csv("build/logs/test_shortest_paths_4.csv");
 
   assert(sim4.now() == 1001.02);
 

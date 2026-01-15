@@ -31,6 +31,8 @@ int main()
 
   sim.run();
 
+  sim.dump_csv("build/logs/test_node_queues.csv");
+
 
   std::cout << "test_node_queues: Simulation finished at t=" << sim.now() << std::endl;
 }

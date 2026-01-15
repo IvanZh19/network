@@ -4,7 +4,6 @@
 #include "sim_types.hpp"
 #include <vector>
 #include <fstream>
-#include <filesystem>
 
 // it's necessary that these EventRecords are capable of capturing all basic details about network behavior, as aside from
 // topology recorded this is the only other data the visualizer gets.
@@ -16,6 +15,7 @@ enum class EventType
   PacketReceive
 };
 
+// inline is kinda jank but ok
 inline const char* to_string(EventType t)
 {
   switch (t) {

@@ -29,6 +29,8 @@ int main()
 
   sim.run();
 
+  sim.dump_csv("build/logs/test_net_generator.csv");
+
   std::cout << "test_net_generator: Simulation finished at t=" << sim.now() << std::endl;
 
 }
