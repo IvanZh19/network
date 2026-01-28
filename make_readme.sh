@@ -20,10 +20,10 @@ The analysis scripts have some simple visualization and metrics capabilities.
 ### Example Visualizations
 
 Random Neighbor
-![Random Neighbor Strategy](build/animations/animation2.gif)
+![Random Neighbor Strategy](assets/animation_random.gif)
 
 Shortest Path
-![Shortest Path Strategy](build/animations/animation.gif)
+![Shortest Path Strategy](assets/animation_shortest.gif)
 
 ### What's in this repo?
 

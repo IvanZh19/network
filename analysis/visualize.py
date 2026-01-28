@@ -202,15 +202,15 @@ def animate_network(network_file=DEFAULT_NETWORK, events_file=DEFAULT_EVENTS, pa
   anim = FuncAnimation(fig, update, frames=len(times), init_func=init, blit=False, interval=int(50 / speed))
 
   if save_file:
-    # try to save,  must have ffmpeg or imagemagick available
+    # try to save,  must have ffmpeg
     ext = os.path.splitext(save_file)[1].lower()
     print(f"Saving animation to {save_file} (this may take a while)...")
     if ext in [".mp4", ".mov"]:
       anim.save(save_file, writer="ffmpeg", fps=30)
     elif ext in [".gif"]:
-      anim.save(save_file, writer="imagemagick", fps=20)
+      anim.save(save_file, writer="ffmpeg", fps=20)
     else:
-      anim.save(save_file, fps=20)
+      anim.save(save_file, writer="ffmpeg", fps=20)
     print("Saved.")
   else:
     plt.show()
