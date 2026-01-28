@@ -61,7 +61,7 @@ def load_packets(path):
       packets[pid] = row
   return packets
 
-def build_movements(events):
+def build_movements(events, packets):
   # for each PacketSend, try to find the corresponding PacketReceive (matching pid,nid1,nid2)
   movements = []
   n = len(events)
@@ -86,16 +86,18 @@ def build_movements(events):
       if t1 <= t0:
         continue
 
-      movements.append({"pid": pid, "src": src, "dst": dst, "t0": t0, "t1": t1})
+      # attach packet metadata
+      pkt_info = packets.get(pid, {})
+      movements.append({"pid": pid, "src": src, "dst": dst, "t0": t0, "t1": t1, "pkt": pkt_info})
 
   return movements
 
-def animate_network(network_file=DEFAULT_NETWORK, events_file=DEFAULT_EVENTS, packets_file=DEFAULT_PACKETS, time_step=0.5, save_file=None, test=False):
+def animate_network(network_file=DEFAULT_NETWORK, events_file=DEFAULT_EVENTS, packets_file=DEFAULT_PACKETS, time_step=0.5, save_file=None, test=False, speed=1.0):
   G = load_network(network_file)
   events = load_events(events_file)
   packets = load_packets(packets_file)
 
-  movements = build_movements(events)
+  movements = build_movements(events, packets)
 
   if test:
     print(f"Loaded network: {len(G.nodes())} nodes, {len(G.edges())} edges")
@@ -111,8 +113,9 @@ def animate_network(network_file=DEFAULT_NETWORK, events_file=DEFAULT_EVENTS, pa
 
   pos = nx.spring_layout(G, seed=42)
 
-  fig, ax = plt.subplots(figsize=(8, 6))
+  fig, ax = plt.subplots(figsize=(15, 6))
   ax.set_title("Network Simulation Animation")
+  sidebar_text = fig.text(0, 0.9, "", transform=fig.transFigure, fontsize=8, family="monospace", verticalalignment="top")
 
   nx.draw_networkx_edges(G, pos, ax=ax, arrows=True, alpha=0.3)
   nx.draw_networkx_labels(G, pos, ax=ax)
@@ -164,12 +167,42 @@ def animate_network(network_file=DEFAULT_NETWORK, events_file=DEFAULT_EVENTS, pa
     else:
       scat.set_offsets(np.empty((0, 2)))
     time_text.set_text(f"time: {t:.2f}")
+
+    # update sidebar with in-transit packets
+    in_transit = []
+    for m in movements:
+      if m["t0"] <= t <= m["t1"]:
+        pkt = m["pkt"]
+        in_transit.append({
+          "pid": m["pid"],
+          "src": pkt.get("src", "?"),
+          "dst": pkt.get("dst", "?"),
+          "owner": pkt.get("owner", "?"),
+          "size": pkt.get("packet_size", "?"),
+          "created": pkt.get("creation_time", "?")
+        })
+
+    # sidebar stuffs
+    max_packets_shown = 15
+    sidebar_lines = ["In Transit Packets:"]
+    if in_transit:
+      sidebar_lines.append("id|src→dst|owner|sz|created")
+      for i, p in enumerate(in_transit):
+        if i >= max_packets_shown:
+          sidebar_lines.append(f"(+{len(in_transit) - max_packets_shown} more)")
+          break
+        line = f"{p['pid']}|{p['src']}→{p['dst']}|{p['owner']}|{p['size']}|{p['created']}"
+        sidebar_lines.append(line)
+    else:
+      sidebar_lines.append("(none)")
+
+    sidebar_text.set_text("\n".join(sidebar_lines))
     return scat, time_text
 
-  anim = FuncAnimation(fig, update, frames=len(times), init_func=init, blit=True, interval=50)
+  anim = FuncAnimation(fig, update, frames=len(times), init_func=init, blit=False, interval=int(50 / speed))
 
   if save_file:
-    # try to save; user must have ffmpeg or imagemagick available
+    # try to save,  must have ffmpeg or imagemagick available
     ext = os.path.splitext(save_file)[1].lower()
     print(f"Saving animation to {save_file} (this may take a while)...")
     if ext in [".mp4", ".mov"]:
@@ -189,10 +222,11 @@ def main():
   parser.add_argument("--packets", default=DEFAULT_PACKETS)
   parser.add_argument("--step", type=float, default=0.5, help="approximate timestep (seconds) between frames")
   parser.add_argument("--save", default=None, help="save animation to file (mp4/gif)")
+  parser.add_argument("--speed", type=float, default=1.0, help="animation speed multiplier (0.5=slow, 2.0=fast)")
   parser.add_argument("--test", action="store_true", help="run quick load/test and exit")
   args = parser.parse_args()
 
-  return animate_network(network_file=args.network, events_file=args.events, packets_file=args.packets, time_step=args.step, save_file=args.save, test=args.test)
+  return animate_network(network_file=args.network, events_file=args.events, packets_file=args.packets, time_step=args.step, save_file=args.save, test=args.test, speed=args.speed)
 
 if __name__ == "__main__":
   main()
