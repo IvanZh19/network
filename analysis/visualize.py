@@ -5,7 +5,6 @@ import csv
 import json
 import math
 import os
-from collections import defaultdict
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -203,14 +202,8 @@ def animate_network(network_file=DEFAULT_NETWORK, events_file=DEFAULT_EVENTS, pa
 
   if save_file:
     # try to save,  must have ffmpeg
-    ext = os.path.splitext(save_file)[1].lower()
     print(f"Saving animation to {save_file} (this may take a while)...")
-    if ext in [".mp4", ".mov"]:
-      anim.save(save_file, writer="ffmpeg", fps=30)
-    elif ext in [".gif"]:
-      anim.save(save_file, writer="ffmpeg", fps=20)
-    else:
-      anim.save(save_file, writer="ffmpeg", fps=20)
+    anim.save(save_file, writer="ffmpeg", fps=20)
     print("Saved.")
   else:
     plt.show()
