@@ -30,7 +30,7 @@ NetworkDesc NetworkGenerator::random_connected(
   desc.nodes.reserve(num_nodes);
   for (int i = 0; i < num_nodes; ++i)
   {
-    desc.nodes.push_back({1.0, nullptr});
+    desc.nodes.push_back({nullptr});
   }
 
   // guarantee connectivity, spanning tree with root at node 0.

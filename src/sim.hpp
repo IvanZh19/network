@@ -33,7 +33,7 @@ public:
   void step(); // executes the next event within the simulation.
   void run(); // step() until no more events are left.
 
-  NodeId add_node(SimTime send_rate, std::unique_ptr<Strategy> strategy);
+  NodeId add_node(std::unique_ptr<Strategy> strategy);
   Node &get_node(NodeId id); // return Node& for the given id
 
   PacketId add_packet(NodeId source, NodeId dest, int packet_size, SimTime creation_time);
@@ -55,13 +55,16 @@ public:
 
   void log(EventRecord er) { logger.log(er); }
 
+  // temp pass through
+  const std::vector<EventRecord>& get_event_records() const { return logger.get_event_records(); }
+
   // export as csv
   void export_log(const std::string &filename) const { logger.dump_csv(filename); }
 
   // export as csv
   void export_packets(const std::string &filename) const;
 
-  // export as
+  // export as json
   void export_network(const std::string &filename) const;
 
 private:

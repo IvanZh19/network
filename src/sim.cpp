@@ -22,7 +22,7 @@ void Simulation::initialize_topology(NetworkDesc& desc)
 {
   for (auto& n : desc.nodes)
   {
-    add_node(n.send_rate, nullptr);
+    add_node(nullptr);
   }
 
   for (auto& l : desc.links)
@@ -105,10 +105,10 @@ void Simulation::run()
   }
 }
 
-NodeId Simulation::add_node(SimTime send_rate, std::unique_ptr<Strategy> strategy)
+NodeId Simulation::add_node(std::unique_ptr<Strategy> strategy)
 {
   NodeId id = nodes.size();
-  auto n = std::make_unique<Node>(nodes.size(), send_rate, std::move(strategy));
+  auto n = std::make_unique<Node>(nodes.size(), std::move(strategy));
   nodes.push_back(std::move(n));
   adj_list.emplace_back(); // make empty edge list for this node
   return id;
@@ -138,6 +138,7 @@ void Simulation::add_directed_link(NodeId from, NodeId to, SimTime propagation_d
 {
   assert (from < nodes.size() && to < nodes.size());
   adj_list[from].push_back(Link(from, to, propagation_delay, bandwidth));
+  get_node(from).add_port(to);
 }
 
 void Simulation::add_undirected_link(NodeId from, NodeId to, SimTime propagation_delay, double bandwidth)
@@ -154,7 +155,7 @@ std::vector<Link>& Simulation::get_links(NodeId id)
 
 Link& Simulation::get_link(NodeId from, NodeId to)
 {
-  std::vector<Link> links = get_links(from);
+  std::vector<Link>& links = get_links(from);
   for (Link& l : links)
   {
     if (l.to() == to)
@@ -250,7 +251,6 @@ void Simulation::export_network(const std::string &filename) const
     const auto& n = nodes[i];
     out << "    { "
         << "\"nid\": " << n->id()
-        << ", \"send_rate\": " << n->rate()
         << " }";
     if (i + 1 < nodes.size()) out << ",";
     out << "\n";

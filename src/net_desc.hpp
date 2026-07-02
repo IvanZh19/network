@@ -11,7 +11,6 @@
 
 struct NodeSpec
 {
-  SimTime send_rate;
   std::unique_ptr<Strategy> strategy; // this is always nullptr for now.
 };
 

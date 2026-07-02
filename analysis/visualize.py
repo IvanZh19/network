@@ -23,7 +23,7 @@ def load_network(path):
   G = nx.DiGraph()
 
   for n in data["nodes"]:
-    G.add_node(n["nid"], send_rate=n["send_rate"])
+    G.add_node(n["nid"])
 
   for l in data["links"]:
     G.add_edge(
