@@ -14,16 +14,13 @@
 
 struct NetworkDesc;
 
-// this selects which strategy to use when instantiating
-enum class StrategyPick { RandomNeighborStrategy_, ShortestPathStrategy_, CongestionAwareStrategy_ };
-
 class Simulation
 {
 public:
   Simulation();
 
   void initialize_topology(NetworkDesc& desc); // desc is produced by an instance of NetworkGenerator, for example
-  void initialize_strategies(StrategyPick strategy, std::vector<double> strategy_params, Simulation& sim); // assure strategy_params are correct.
+  void initialize_strategies(StrategyType strategy, StrategyParams params, Simulation& sim);
 
   SimTime now() const; // get the current time of the simulation
   bool done() const;   // true if no more events will occur

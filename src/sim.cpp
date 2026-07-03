@@ -36,26 +36,11 @@ void Simulation::initialize_topology(NetworkDesc& desc)
   }
 }
 
-void Simulation::initialize_strategies(StrategyPick strategy, std::vector<double> strategy_params, Simulation& sim)
+void Simulation::initialize_strategies(StrategyType strategy, StrategyParams params, Simulation& sim)
 {
   for (auto& n : nodes)
   {
-    switch (strategy) {
-      case StrategyPick::RandomNeighborStrategy_ :
-        assert(strategy_params.size() == 0);
-        n->set_strategy(std::make_unique<RandomNeighborStrategy>(n->id(), sim));
-        break;
-      case StrategyPick::ShortestPathStrategy_ :
-        assert(strategy_params.size() == 3);
-        n->set_strategy(std::make_unique<ShortestPathStrategy>(n->id(),
-        sim, strategy_params[0], strategy_params[1], strategy_params[2]));
-        break;
-      case StrategyPick::CongestionAwareStrategy_ :
-        assert(strategy_params.size() == 4);
-        n->set_strategy(std::make_unique<CongestionAwareStrategy>(n->id(),
-        sim, strategy_params[0], strategy_params[1], strategy_params[2], strategy_params[3]));
-        break;
-    }
+    n->set_strategy(make_strategy(strategy, n->id(), sim, params));
   }
 }
 

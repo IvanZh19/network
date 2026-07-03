@@ -2,7 +2,7 @@
 
 #pragma once
 #include <unordered_map>
-#include <memory.h>
+#include <memory>
 #include "sim_types.hpp"
 #include "packet.hpp"
 
@@ -67,19 +67,28 @@ private:
 class CongestionAwareStrategy : public Strategy
 {
 public:
-  CongestionAwareStrategy(NodeId self_id, Simulation& sim, double propagation_delay_factor, double bandwidth_factor, double fixed, double congestion_factor)
-    : self_id(self_id), congestion_factor(congestion_factor)
-  {
-    next_hop_lookup = build_lookup(self_id, sim, propagation_delay_factor, bandwidth_factor, fixed);
-  }
+  CongestionAwareStrategy(NodeId self_id, Simulation& sim, double congestion_factor)
+    : self_id(self_id), congestion_factor(congestion_factor) {}
 
-  // estimates time to reach each neighbor, adds that to neighbor's time to target, chooses the minimum amongst these
+  // pure greedy: picks the neighbor with the best immediate link estimate.
   NodeId choose_next_hop(NodeId self_id, Packet& p, Simulation& sim) const override;
 
-  RouteInfo get_route_info(NodeId dst) const override;
+  // meaningless here
+  RouteInfo get_route_info(NodeId dst) const override { return std::make_pair(0, 0.0); }
 
 private:
   NodeId self_id;
   double congestion_factor;
-  std::unordered_map<NodeId, RouteInfo> next_hop_lookup;
 };
+
+enum class StrategyType { Random, ShortestPath, CongestionAware };
+
+struct StrategyParams
+{
+  double pd_factor = 0.0;
+  double bw_factor = 0.0;
+  double fixed = 0.0;
+  double congestion_factor = 0.0; // only for congestion aware
+};
+
+std::unique_ptr<Strategy> make_strategy(StrategyType type, NodeId self_id, Simulation& sim, const StrategyParams& params = {});
