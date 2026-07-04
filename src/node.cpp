@@ -5,10 +5,10 @@
 #include "sim.hpp"
 #include "strategy.hpp"
 
-void Node::add_port(NodeId neighbor)
+void Node::add_port(NodeId neighbor, size_t capacity)
 {
   // emplace constructs in place, so handed-out port references can remain valid
-  ports.emplace(neighbor, OutputPort(nid, neighbor));
+  ports.emplace(neighbor, OutputPort(nid, neighbor, capacity));
 }
 
 void Node::receive_packet(PacketId pid, Simulation& sim)

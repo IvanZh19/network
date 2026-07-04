@@ -38,8 +38,8 @@ public:
   // the owner of a Packet is assumed to be source at creation, and updates when the next node receives it.
   // it's assumed that Nodes and Packets can't be removed, so lookup by id is trivial.
 
-  void add_directed_link(NodeId from, NodeId to, SimTime propagation_delay, double bandwidth); // assumes Nodes exist
-  void add_undirected_link(NodeId from, NodeId to, SimTime propagation_delay, double bandwidth); // link both ways.
+  void add_directed_link(NodeId from, NodeId to, SimTime propagation_delay, double bandwidth, size_t capacity = 64);
+  void add_undirected_link(NodeId from, NodeId to, SimTime propagation_delay, double bandwidth, size_t capacity = 64);
 
   std::vector<Link>& get_links(NodeId id); // returns outgoing Links for a Node.
   Link& get_link(NodeId from, NodeId to); // return Link reference, assuming it exists
@@ -68,7 +68,7 @@ private:
   SimTime current_time;
 
   std::vector<std::unique_ptr<Node>> nodes;
-  std::vector<std::unique_ptr<Packet>> packets;
+  std::vector<std::unique_ptr<Packet>> packets; // TODO: garbage collect dropped/delivered packets?
   std::vector<std::vector<Link>> adj_list;
 
   std::priority_queue<

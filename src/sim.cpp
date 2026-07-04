@@ -27,7 +27,7 @@ void Simulation::initialize_topology(NetworkDesc& desc)
 
   for (auto& l : desc.links)
   {
-    add_directed_link(l.from, l.to, l.propagation_delay, l.bandwidth);
+    add_directed_link(l.from, l.to, l.propagation_delay, l.bandwidth, l.capacity);
   }
 
   for (auto& p : desc.packets)
@@ -119,17 +119,17 @@ Packet &Simulation::get_packet(PacketId id)
   return *packets.at(id);
 }
 
-void Simulation::add_directed_link(NodeId from, NodeId to, SimTime propagation_delay, double bandwidth)
+void Simulation::add_directed_link(NodeId from, NodeId to, SimTime propagation_delay, double bandwidth, size_t capacity)
 {
   assert (from < nodes.size() && to < nodes.size());
   adj_list[from].push_back(Link(from, to, propagation_delay, bandwidth));
-  get_node(from).add_port(to);
+  get_node(from).add_port(to, capacity);
 }
 
-void Simulation::add_undirected_link(NodeId from, NodeId to, SimTime propagation_delay, double bandwidth)
+void Simulation::add_undirected_link(NodeId from, NodeId to, SimTime propagation_delay, double bandwidth, size_t capacity)
 {
-  Simulation::add_directed_link(from, to, propagation_delay, bandwidth);
-  Simulation::add_directed_link(to, from, propagation_delay, bandwidth);
+  Simulation::add_directed_link(from, to, propagation_delay, bandwidth, capacity);
+  Simulation::add_directed_link(to, from, propagation_delay, bandwidth, capacity);
 }
 
 std::vector<Link>& Simulation::get_links(NodeId id)

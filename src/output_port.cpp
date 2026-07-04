@@ -8,6 +8,12 @@
 
 void OutputPort::enqueue_and_drain(PacketId pid, Simulation& sim)
 {
+  if (packet_queue_.size() >= capacity_)
+  {
+    sim.log({sim.now(), EventType::PacketDrop, owner_, neighbor_, pid});
+    return;
+  }
+
   packet_queue_.push(pid);
   if (!busy_)
   {

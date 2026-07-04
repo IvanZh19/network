@@ -22,7 +22,7 @@ public:
   void receive_packet(PacketId pid, Simulation& sim);
 
   // has to be called once per outgoing link before sim runs
-  void add_port(NodeId neighbor);
+  void add_port(NodeId neighbor, size_t capacity = 64);
 
   void set_strategy(std::unique_ptr<Strategy> strat)
   {

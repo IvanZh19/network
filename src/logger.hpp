@@ -10,9 +10,10 @@
 
 enum class EventType
 {
-  PacketCreate,
-  PacketSend,
-  PacketReceive
+  PacketCreate, // src/dst
+  PacketSend, // from/to
+  PacketReceive, // from/to
+  PacketDrop // from/to (of the OutputPort)
 };
 
 // inline is kinda jank but ok
@@ -22,6 +23,7 @@ inline const char* to_string(EventType t)
     case EventType::PacketCreate: return "PacketCreate";
     case EventType::PacketSend: return "PacketSend";
     case EventType::PacketReceive: return "PacketReceive";
+    case EventType::PacketDrop: return "PacketDrop";
   }
   return "Unknown";
 }
@@ -31,7 +33,6 @@ struct EventRecord
   SimTime time;
   EventType type;
 
-  // PacketCreate: src/dst, PacketSend: from/to, PacketReceive: from/to
   NodeId nid1;
   NodeId nid2;
   PacketId pid;

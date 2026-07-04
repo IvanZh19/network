@@ -20,6 +20,7 @@ struct LinkSpec
   NodeId to;
   SimTime propagation_delay;
   double bandwidth;
+  size_t capacity;
 };
 
 // PacketSpec is the same as Packet... but without the constructor and without ID.

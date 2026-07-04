@@ -9,8 +9,8 @@ class Simulation;
 class OutputPort
 {
 public:
-  OutputPort(NodeId owner, NodeId neighbor)
-    : owner_(owner), neighbor_(neighbor), busy_(false) {}
+  OutputPort(NodeId owner, NodeId neighbor, size_t capacity = 64)
+    : owner_(owner), neighbor_(neighbor), capacity_(capacity), busy_(false) {}
 
   NodeId neighbor() const { return neighbor_; }
   bool busy() const { return busy_; }
@@ -23,6 +23,7 @@ public:
 private:
   NodeId owner_;
   NodeId neighbor_;
+  size_t capacity_;
   bool busy_;
   std::queue<PacketId> packet_queue_;
 
