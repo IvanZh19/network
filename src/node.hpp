@@ -21,6 +21,9 @@ public:
   // OutputPort, which handles queueing and draining
   void receive_packet(PacketId pid, Simulation& sim);
 
+  // represents packets originating here
+  void originate_packet(PacketId pid, Simulation& sim);
+
   // has to be called once per outgoing link before sim runs
   void add_port(NodeId neighbor, size_t capacity = 64);
 

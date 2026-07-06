@@ -13,8 +13,6 @@ void Node::add_port(NodeId neighbor, size_t capacity)
 
 void Node::receive_packet(PacketId pid, Simulation& sim)
 {
-  // std::cout << "Node " << nid << " received Packet " << pid << " at t=" << sim.now() << std::endl;
-
   Packet& p = sim.get_packet(pid);
 
   if (p.owner == nid)
@@ -32,13 +30,31 @@ void Node::receive_packet(PacketId pid, Simulation& sim)
 
   if (p.dst == nid)
   {
-    // delivered! do nothing. unless want to.
-    return;
+    if (p.is_ack)
+    {
+      sim.get_flow(p.flow_id).on_ack(p, sim);
+    }
+    else if (p.flow_id != INVALID_FLOW_ID)
+    {
+      PacketId ack_pid = sim.add_packet(nid, p.src, ACK_SIZE, sim.now(), p.flow_id, true, p.id);
+      originate_packet(ack_pid, sim);
+    }
+    return; // do nothing, as before
   }
 
   NodeId next = choose_next_hop(p, sim);
+  ports.at(next).enqueue_and_drain(pid, sim);
+}
 
-  // route straight to the desired port.
+void Node::originate_packet(PacketId pid, Simulation& sim)
+{
+  Packet& p = sim.get_packet(pid);
+  sim.log({sim.now(), EventType::PacketCreate, p.src, p.dst, p.id});
+  p.owner = nid;
+
+  if (p.dst == nid) return; // edge case, should not normally happen
+
+  NodeId next = choose_next_hop(p, sim);
   ports.at(next).enqueue_and_drain(pid, sim);
 }
 

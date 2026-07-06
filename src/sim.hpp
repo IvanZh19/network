@@ -9,10 +9,17 @@
 #include "node.hpp"
 #include "link.hpp"
 #include "packet.hpp"
+#include "flow.hpp"
 #include "strategy.hpp"
 #include "logger.hpp"
+#include <cstdint>
 
 struct NetworkDesc;
+
+// TODO maybe handle these differently
+constexpr FlowId INVALID_FLOW_ID = 0;
+constexpr PacketId INVALID_PACKET_ID = 0;
+constexpr int ACK_SIZE = 40;
 
 class Simulation
 {
@@ -33,7 +40,8 @@ public:
   NodeId add_node(std::unique_ptr<Strategy> strategy);
   Node &get_node(NodeId id); // return Node& for the given id
 
-  PacketId add_packet(NodeId source, NodeId dest, int packet_size, SimTime creation_time);
+  PacketId add_packet(NodeId source, NodeId dest, int packet_size, SimTime creation_time,
+                      FlowId flow_id = INVALID_FLOW_ID, bool is_ack = false, PacketId acked_pid = INVALID_PACKET_ID);
   Packet &get_packet(PacketId id);
   // the owner of a Packet is assumed to be source at creation, and updates when the next node receives it.
   // it's assumed that Nodes and Packets can't be removed, so lookup by id is trivial.
@@ -43,6 +51,9 @@ public:
 
   std::vector<Link>& get_links(NodeId id); // returns outgoing Links for a Node.
   Link& get_link(NodeId from, NodeId to); // return Link reference, assuming it exists
+
+  FlowId add_flow(NodeId src, NodeId dst, int64_t total_bytes, int packet_size);
+  Flow& get_flow(FlowId id);
 
   std::vector<NodeId> get_nodes() const;
 
@@ -70,6 +81,7 @@ private:
   std::vector<std::unique_ptr<Node>> nodes;
   std::vector<std::unique_ptr<Packet>> packets; // TODO: garbage collect dropped/delivered packets?
   std::vector<std::vector<Link>> adj_list;
+  std::unordered_map<FlowId, Flow> flows;
 
   std::priority_queue<
       std::unique_ptr<Event>,

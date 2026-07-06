@@ -13,7 +13,8 @@ enum class EventType
   PacketCreate, // src/dst
   PacketSend, // from/to
   PacketReceive, // from/to
-  PacketDrop // from/to (of the OutputPort)
+  PacketDrop, // from/to (of the OutputPort)
+  FlowComplete // flow's src and dst, packet id is INALID (0)
 };
 
 // inline is kinda jank but ok
@@ -24,6 +25,7 @@ inline const char* to_string(EventType t)
     case EventType::PacketSend: return "PacketSend";
     case EventType::PacketReceive: return "PacketReceive";
     case EventType::PacketDrop: return "PacketDrop";
+    case EventType::FlowComplete: return "FlowComplete";
   }
   return "Unknown";
 }

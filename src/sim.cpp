@@ -15,6 +15,7 @@ Simulation::Simulation()
 {
   current_time = 0.0;
   logger = Logger();
+  packets.push_back(nullptr); // sentinel for invalid
   // note that other fields are fine as is, will get changed by methods.
 }
 
@@ -105,10 +106,11 @@ Node &Simulation::get_node(NodeId id)
   return *nodes.at(id);
 }
 
-PacketId Simulation::add_packet(NodeId source, NodeId dest, int packet_size, SimTime creation_time)
+PacketId Simulation::add_packet(NodeId source, NodeId dest, int packet_size, SimTime creation_time,
+                                FlowId flow_id, bool is_ack, PacketId acked_pid)
 {
   PacketId pid = packets.size();
-  auto p = std::make_unique<Packet>(pid, source, dest, source, packet_size, creation_time);
+  auto p = std::make_unique<Packet>(pid, source, dest, source, packet_size, creation_time, flow_id, is_ack, acked_pid);
   packets.push_back(std::move(p));
   return pid;
 }
@@ -152,6 +154,19 @@ Link& Simulation::get_link(NodeId from, NodeId to)
   throw std::runtime_error(
     "No link found..."
   );
+}
+
+FlowId Simulation::add_flow(NodeId src, NodeId dst, int64_t total_bytes, int packet_size)
+{
+  FlowId id = flows.size() + 1; // 0 is invalid
+  flows.emplace(id, Flow(id, src, dst, total_bytes, packet_size));
+  flows.at(id).start(*this);
+  return id;
+}
+
+Flow& Simulation::get_flow(FlowId id)
+{
+  return flows.at(id);
 }
 
 std::vector<NodeId> Simulation::get_nodes() const
