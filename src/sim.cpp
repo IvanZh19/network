@@ -156,10 +156,11 @@ Link& Simulation::get_link(NodeId from, NodeId to)
   );
 }
 
-FlowId Simulation::add_flow(NodeId src, NodeId dst, int64_t total_bytes, int packet_size)
+FlowId Simulation::add_flow(NodeId src, NodeId dst, int64_t total_bytes, int packet_size,
+                            CongestionControlType cc_type, CongestionControlParams cc_params)
 {
   FlowId id = flows.size() + 1; // 0 is invalid
-  flows.emplace(id, Flow(id, src, dst, total_bytes, packet_size));
+  flows.emplace(id, Flow(id, src, dst, total_bytes, packet_size, cc_type, cc_params));
   flows.at(id).start(*this);
   return id;
 }

@@ -10,8 +10,10 @@ constexpr double RTT_ALPHA = 0.2;
 constexpr SimTime MIN_RTO = 0.05;
 constexpr SimTime DEFAULT_RTO = 1.0;
 
-Flow::Flow(FlowId id, NodeId src, NodeId dst, int64_t total_bytes, int packet_size)
-  : flow_id(id), src_(src), dst_(dst), bytes_remaining(total_bytes), packet_size(packet_size) {}
+Flow::Flow(FlowId id, NodeId src, NodeId dst, int64_t total_bytes, int packet_size,
+            CongestionControlType cc_type, CongestionControlParams cc_params)
+  : flow_id(id), src_(src), dst_(dst), bytes_remaining(total_bytes), packet_size(packet_size),
+    cc_(make_congestion_control(cc_type, cc_params)) {}
 
 void Flow::start(Simulation& sim)
 {
@@ -20,7 +22,7 @@ void Flow::start(Simulation& sim)
 
 void Flow::maybe_send(Simulation& sim)
 {
-  while (in_flight.size() < static_cast<size_t>(cwnd) && bytes_remaining > 0)
+  while (in_flight.size() < static_cast<size_t>(cc_->get_cwnd()) && bytes_remaining > 0)
   {
     send_one_packet(sim);
   }
@@ -55,10 +57,11 @@ void Flow::on_ack(Packet& ack, Simulation& sim)
   }
 
   SimTime sample_rtt = sim.now() - it->second.send_time;
+  size_t acked_bytes = it->second.packet_size;
   rtt_estimate = (rtt_estimate <= 0.0) ? sample_rtt : (1 - RTT_ALPHA) * rtt_estimate + RTT_ALPHA * sample_rtt;
   in_flight.erase(it);
 
-  cwnd += 1.0;
+  cc_->on_ack(sample_rtt, acked_bytes, sim.now());
 
   if (is_complete())
   {
@@ -78,7 +81,7 @@ void Flow::on_timeout(PacketId pid, Simulation& sim)
   }
 
   in_flight.erase(it);
-  cwnd = std::max(1.0, cwnd / 2.0);
+  cc_->on_timeout();
 
   // treat as lost, resend a fresh packet. pids are meant to be unique for sim purposes, so
   // for now they represent the same data but are distinct packets.

@@ -10,6 +10,7 @@
 #include "link.hpp"
 #include "packet.hpp"
 #include "flow.hpp"
+#include "congestion_control.hpp"
 #include "strategy.hpp"
 #include "logger.hpp"
 #include <cstdint>
@@ -52,7 +53,9 @@ public:
   std::vector<Link>& get_links(NodeId id); // returns outgoing Links for a Node.
   Link& get_link(NodeId from, NodeId to); // return Link reference, assuming it exists
 
-  FlowId add_flow(NodeId src, NodeId dst, int64_t total_bytes, int packet_size);
+  FlowId add_flow(NodeId src, NodeId dst, int64_t total_bytes, int packet_size,
+                  CongestionControlType cc_type = CongestionControlType::AIMD,
+                  CongestionControlParams cc_params = CongestionControlParams{});
   Flow& get_flow(FlowId id);
 
   std::vector<NodeId> get_nodes() const;

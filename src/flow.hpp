@@ -2,8 +2,10 @@
 
 #pragma once
 #include "sim_types.hpp"
+#include "congestion_control.hpp"
 #include <unordered_map>
 #include <cstdint>
+#include <memory>
 
 class Simulation;
 struct Packet;
@@ -17,11 +19,15 @@ struct FlightInfo
 class Flow
 {
 public:
-  Flow(FlowId id, NodeId src, NodeId dst, int64_t total_bytes, int packet_size);
+  Flow(FlowId id, NodeId src, NodeId dst, int64_t total_bytes, int packet_size,
+      CongestionControlType cc_type = CongestionControlType::AIMD,
+      CongestionControlParams cc_params = CongestionControlParams{});
 
   FlowId id() const { return flow_id; }
   NodeId src() const { return src_; }
   NodeId dst() const { return dst_; }
+  double get_cwnd() const { return cc_->get_cwnd(); }
+  size_t in_flight_count() const { return in_flight.size(); }
 
   // kick off the flow, call once right after construction
   void start(Simulation& sim);
@@ -46,7 +52,7 @@ private:
   int packet_size;
   int64_t bytes_remaining;
 
-  double cwnd = 1.0;
+  std::unique_ptr<CongestionControl> cc_;
   SimTime rtt_estimate = 0.0;
 
   // maps pid to send time and size, for sent but not ACKed
