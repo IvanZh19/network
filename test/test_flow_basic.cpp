@@ -18,7 +18,7 @@ int main()
   sim.get_node(zero).set_strategy(make_strategy(StrategyType::ShortestPath, zero, sim, {.pd_factor=1}));
   sim.get_node(one).set_strategy(make_strategy(StrategyType::ShortestPath, one, sim, {.pd_factor=1}));
 
-  FlowId fid = sim.add_flow(0, 1, 10000, 1000);
+  FlowId fid = sim.add_flow(0, 1, 50000, 1000, CongestionControlType::BBR);
 
   sim.run();
 

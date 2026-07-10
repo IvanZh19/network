@@ -13,7 +13,11 @@ constexpr SimTime DEFAULT_RTO = 1.0;
 Flow::Flow(FlowId id, NodeId src, NodeId dst, int64_t total_bytes, int packet_size,
             CongestionControlType cc_type, CongestionControlParams cc_params)
   : flow_id(id), src_(src), dst_(dst), bytes_remaining(total_bytes), packet_size(packet_size),
-    cc_(make_congestion_control(cc_type, cc_params)) {}
+    cc_([&]() {
+      CongestionControlParams p = cc_params;
+      if (p.initial_cwnd <= 0.0) p.initial_cwnd = static_cast<double>(packet_size);
+      return make_congestion_control(cc_type, p);
+    }()) {}
 
 void Flow::start(Simulation& sim)
 {
@@ -22,9 +26,23 @@ void Flow::start(Simulation& sim)
 
 void Flow::maybe_send(Simulation& sim)
 {
-  while (in_flight.size() < static_cast<size_t>(cc_->get_cwnd()) && bytes_remaining > 0)
+  if (static_cast<double>(in_flight_bytes_) >= cc_->get_cwnd() || bytes_remaining <= 0)
   {
-    send_one_packet(sim);
+    return;
+  }
+
+  send_one_packet(sim);
+
+  SimTime delay = cc_->pacing_interval(packet_size);
+  if (delay <= 0.0)
+  {
+    maybe_send(sim);
+  }
+  else
+  {
+    sim.schedule(std::make_unique<Event>(sim.now() + delay,
+      [this, &sim]() { this->maybe_send(sim); }
+    ));
   }
 }
 
@@ -35,6 +53,7 @@ void Flow::send_one_packet(Simulation& sim)
 
   PacketId pid = sim.add_packet(src_, dst_, this_size, sim.now(), flow_id);
   in_flight[pid] = {.send_time=sim.now(), .packet_size=this_size};
+  in_flight_bytes_ += this_size;
 
   sim.get_node(src_).originate_packet(pid, sim);
   schedule_timeout(pid, sim);
@@ -60,6 +79,7 @@ void Flow::on_ack(Packet& ack, Simulation& sim)
   size_t acked_bytes = it->second.packet_size;
   rtt_estimate = (rtt_estimate <= 0.0) ? sample_rtt : (1 - RTT_ALPHA) * rtt_estimate + RTT_ALPHA * sample_rtt;
   in_flight.erase(it);
+  in_flight_bytes_ -= acked_bytes;
 
   cc_->on_ack(sample_rtt, acked_bytes, sim.now());
 
@@ -80,14 +100,17 @@ void Flow::on_timeout(PacketId pid, Simulation& sim)
     return; // already ACKed
   }
 
+  int lost_size = it->second.packet_size;
   in_flight.erase(it);
+  in_flight_bytes_ -= lost_size;
   cc_->on_timeout();
 
   // treat as lost, resend a fresh packet. pids are meant to be unique for sim purposes, so
   // for now they represent the same data but are distinct packets.
-  int this_size = it->second.packet_size; // use the size stored in in_flight
+  int this_size = lost_size;
   PacketId new_pid = sim.add_packet(src_, dst_, this_size, sim.now(), flow_id);
   in_flight[new_pid] = {.send_time=sim.now(), .packet_size=this_size};
+  in_flight_bytes_ += this_size;
   sim.get_node(src_).originate_packet(new_pid, sim);
   schedule_timeout(new_pid, sim);
 }

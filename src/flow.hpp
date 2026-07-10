@@ -28,6 +28,7 @@ public:
   NodeId dst() const { return dst_; }
   double get_cwnd() const { return cc_->get_cwnd(); }
   size_t in_flight_count() const { return in_flight.size(); }
+  int64_t in_flight_bytes() const { return in_flight_bytes_; }
 
   // kick off the flow, call once right after construction
   void start(Simulation& sim);
@@ -42,7 +43,7 @@ public:
   bool is_complete() const { return bytes_remaining <= 0 && in_flight.empty(); }
 
 private:
-  void maybe_send(Simulation& sim);
+  void maybe_send(Simulation& sim); // may schedule itself
   void send_one_packet(Simulation& sim);
   void schedule_timeout(PacketId pid, Simulation& sim);
 
@@ -57,4 +58,5 @@ private:
 
   // maps pid to send time and size, for sent but not ACKed
   std::unordered_map<PacketId, FlightInfo> in_flight;
+  int64_t in_flight_bytes_ = 0;
 };
