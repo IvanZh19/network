@@ -13,6 +13,7 @@
 #include "congestion_control.hpp"
 #include "strategy.hpp"
 #include "logger.hpp"
+#include "tracker.hpp"
 #include <cstdint>
 
 struct NetworkDesc;
@@ -64,6 +65,14 @@ public:
   void print_packets() const;
   void print_adj_list() const;
 
+  void add_probe(const std::string& name, std::function<double()> getter)
+  {
+    tracker.add_probe(name, std::move(getter));
+  }
+
+  // export as csv
+  void export_probes(const std::string &filename) const { tracker.dump_csv(filename); }
+
   void log(EventRecord er) { logger.log(er); }
 
   // temp pass through
@@ -93,4 +102,5 @@ private:
       event_queue;
 
   Logger logger;
+  Tracker tracker;
 };

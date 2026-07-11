@@ -81,6 +81,7 @@ void Simulation::step()
 
   current_time = e->time;
   e->action(); // if e requires the sim context, it should be a lambda using [&sim]
+  tracker.sample(current_time);
 }
 
 void Simulation::run()

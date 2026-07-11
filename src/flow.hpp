@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <cstdint>
 #include <memory>
+#include <string>
 
 class Simulation;
 struct Packet;
@@ -29,6 +30,7 @@ public:
   double get_cwnd() const { return cc_->get_cwnd(); }
   size_t in_flight_count() const { return in_flight.size(); }
   int64_t in_flight_bytes() const { return in_flight_bytes_; }
+  std::unordered_map<std::string, double> stats() const { return cc_->stats(); }
 
   // kick off the flow, call once right after construction
   void start(Simulation& sim);

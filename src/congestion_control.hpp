@@ -8,6 +8,8 @@
 #include <deque>
 #include <limits>
 #include <cmath>
+#include <unordered_map>
+#include <string>
 
 class CongestionControl
 {
@@ -18,6 +20,8 @@ public:
 
   // time to wait after a send before maybe sending again
   virtual SimTime pacing_interval(int packet_size) const { return 0.0; }
+
+  virtual std::unordered_map<std::string, double> stats() const { return {}; }
 
   virtual ~CongestionControl() = default;
 };
@@ -102,6 +106,11 @@ public:
       return 0.0;
     }
     return static_cast<double>(packet_size) / max_bandwidth_bps_;
+  }
+
+  std::unordered_map<std::string, double> stats() const override
+  {
+    return {{"max_bandwidth_bps", max_bandwidth_bps_}, {"min_rtt", min_rtt_}};
   }
 
 private:
