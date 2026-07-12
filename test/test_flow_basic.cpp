@@ -18,11 +18,17 @@ int main()
   sim.get_node(zero).set_strategy(make_strategy(StrategyType::ShortestPath, zero, sim, {.pd_factor=1}));
   sim.get_node(one).set_strategy(make_strategy(StrategyType::ShortestPath, one, sim, {.pd_factor=1}));
 
-  FlowId fid = sim.add_flow(0, 1, 50000, 1000, CongestionControlType::BBR);
+  FlowId fid = sim.add_flow(0, 1, 50000, 1000, CongestionControlType::AIMD);
+  Flow& flow = sim.get_flow(fid);
+
+  sim.add_probe("flow_cwnd",
+    [&flow]() { return flow.get_cwnd(); });
 
   sim.run();
 
   sim.export_log("build/logs/test_flow_basic.csv");
+
+  sim.export_probes("build/probes/test_flow_basic.csv");
 
   const auto& records = sim.get_event_records();
 

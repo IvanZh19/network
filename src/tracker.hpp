@@ -7,6 +7,7 @@
 #include <vector>
 #include <optional>
 #include <fstream>
+#include <iomanip>
 
 struct Probe
 {
@@ -44,10 +45,16 @@ public:
     }
   }
 
+  const std::vector<ProbeRecord>& get_probe_records() const
+  {
+    return probe_records;
+  }
+
   void dump_csv(const std::string& filename) const
   {
     std::ofstream out(filename);
     if (!out) throw std::runtime_error("Failed to open tracker file");
+    out << std::setprecision(10);
     out << "time,name,value\n";
     for (const auto& pr : probe_records)
     {

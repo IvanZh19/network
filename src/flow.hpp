@@ -57,6 +57,7 @@ private:
 
   std::unique_ptr<CongestionControl> cc_;
   SimTime rtt_estimate = 0.0;
+  int consecutive_timeouts_ = 0;
 
   // maps pid to send time and size, for sent but not ACKed
   std::unordered_map<PacketId, FlightInfo> in_flight;

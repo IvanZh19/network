@@ -38,6 +38,7 @@ public:
   void schedule_all_packets(Simulation& sim); // schedules initial event for all packets.
   void step(); // executes the next event within the simulation.
   void run(); // step() until no more events are left.
+  bool run_bounded(size_t max_steps); // step() for a number of steps, returns true if done
 
   NodeId add_node(std::unique_ptr<Strategy> strategy);
   Node &get_node(NodeId id); // return Node& for the given id
@@ -69,6 +70,8 @@ public:
   {
     tracker.add_probe(name, std::move(getter));
   }
+
+  const std::vector<ProbeRecord>& get_probe_records() const { return tracker.get_probe_records(); }
 
   // export as csv
   void export_probes(const std::string &filename) const { tracker.dump_csv(filename); }

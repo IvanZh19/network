@@ -4,6 +4,7 @@
 #include "packet.hpp"
 #include "sim.hpp"
 #include "event.hpp"
+#include <cmath>
 
 // TODO: cleanup these hardcoded values?
 constexpr double RTT_ALPHA = 0.2;
@@ -61,7 +62,8 @@ void Flow::send_one_packet(Simulation& sim)
 
 void Flow::schedule_timeout(PacketId pid, Simulation& sim)
 {
-  SimTime rto = (rtt_estimate > 0.0) ? std::max(2.0 * rtt_estimate, MIN_RTO) : DEFAULT_RTO;
+  SimTime base_rto = (rtt_estimate > 0.0) ? std::max(2.0 * rtt_estimate, MIN_RTO) : DEFAULT_RTO;
+  SimTime rto = base_rto * std::pow(2.0, std::min(consecutive_timeouts_, 5)); // cap at 5
   sim.schedule(std::make_unique<Event>(sim.now() + rto,
     [this, pid, &sim]() { this->on_timeout(pid, sim); }
   ));
@@ -82,6 +84,7 @@ void Flow::on_ack(Packet& ack, Simulation& sim)
   in_flight_bytes_ -= acked_bytes;
 
   cc_->on_ack(sample_rtt, acked_bytes, sim.now());
+  consecutive_timeouts_ = 0;
 
   if (is_complete())
   {
@@ -104,13 +107,11 @@ void Flow::on_timeout(PacketId pid, Simulation& sim)
   in_flight.erase(it);
   in_flight_bytes_ -= lost_size;
   cc_->on_timeout();
+  consecutive_timeouts_++;
 
-  // treat as lost, resend a fresh packet. pids are meant to be unique for sim purposes, so
-  // for now they represent the same data but are distinct packets.
-  int this_size = lost_size;
-  PacketId new_pid = sim.add_packet(src_, dst_, this_size, sim.now(), flow_id);
-  in_flight[new_pid] = {.send_time=sim.now(), .packet_size=this_size};
-  in_flight_bytes_ += this_size;
-  sim.get_node(src_).originate_packet(new_pid, sim);
-  schedule_timeout(new_pid, sim);
+  // put lost bytes back into queue, so maybe_send can re-originate them
+  // this way retransmission actually respects cwnd
+  // note because of how packet sizes are handled, resent chunk size can differ
+  bytes_remaining += lost_size;
+  maybe_send(sim);
 }

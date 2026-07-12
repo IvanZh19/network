@@ -92,6 +92,17 @@ void Simulation::run()
   }
 }
 
+bool Simulation::run_bounded(size_t max_steps)
+{
+  size_t steps = 0;
+  while (!done())
+  {
+    if (steps++ >= max_steps) return false;
+    step();
+  }
+  return true;
+}
+
 NodeId Simulation::add_node(std::unique_ptr<Strategy> strategy)
 {
   NodeId id = nodes.size();

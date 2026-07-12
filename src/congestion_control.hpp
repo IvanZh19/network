@@ -99,7 +99,7 @@ public:
     return std::max(floor_, max_bandwidth_bps_ * min_rtt_ * gain_);
   }
 
-  double pacing_interval(int packet_size) const override
+  SimTime pacing_interval(int packet_size) const override
   {
     if (max_bandwidth_bps_ <= 0.0)
     {
