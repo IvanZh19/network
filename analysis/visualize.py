@@ -146,7 +146,10 @@ def animate_network(network_file=DEFAULT_NETWORK, events_file=DEFAULT_EVENTS, pa
         y = p0[1] * (1 - frac) + p1[1] * frac
         xs.append(x)
         ys.append(y)
-        cs.append(cmap((m["pid"] % 20) / 20.0))
+
+        # color by flow_id
+        flow_id = int(m["pkt"].get("flow_id", 0))
+        cs.append(cmap((flow_id % 20) / 20.0))
     return xs, ys, cs
 
   time_text = ax.text(0.02, 0.95, "", transform=ax.transAxes)

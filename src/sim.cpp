@@ -23,7 +23,7 @@ void Simulation::initialize_topology(NetworkDesc& desc)
 {
   for (auto& n : desc.nodes)
   {
-    add_node(nullptr);
+    add_node();
   }
 
   for (auto& l : desc.links)

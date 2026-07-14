@@ -4,6 +4,7 @@
 
 #include "net_desc.hpp"
 #include <random>
+#include <unordered_set>
 
 class NetworkGenerator
 {
@@ -20,7 +21,19 @@ public:
     SimTime min_delay,
     SimTime max_delay,
     double min_bandwidth,
-    double max_bandwidth
+    double max_bandwidth,
+    size_t capacity = 64
+  );
+
+  // Barabasi-Albert style setup to make scale free graph
+  NetworkDesc scale_free(
+    int num_nodes,
+    int m,
+    SimTime min_delay,
+    SimTime max_delay,
+    double min_bandwidth,
+    double max_bandwidth,
+    size_t capacity = 64
   );
 
   void add_uniform_random_packets(
@@ -37,4 +50,6 @@ private:
 
   SimTime rand_delay(SimTime min, SimTime max);
   double rand_bandwidth(double min, double max);
+  void add_undirected_edge(NetworkDesc& desc, NodeId a, NodeId b, SimTime min_delay, SimTime max_delay,
+                            double min_bandwidth, double max_bandwidth, size_t capacity);
 };

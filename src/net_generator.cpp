@@ -1,6 +1,8 @@
 // [treesource] This implements the NetworkGenerator class.
 
 #include "net_generator.hpp"
+#include <unordered_set>
+#include <algorithm>
 
 NetworkGenerator::NetworkGenerator(unsigned seed)
   : rng(seed) {}
@@ -23,7 +25,8 @@ NetworkDesc NetworkGenerator::random_connected(
     SimTime min_delay,
     SimTime max_delay,
     double min_bandwidth,
-    double max_bandwidth)
+    double max_bandwidth,
+    size_t capacity)
 {
   NetworkDesc desc;
 
@@ -45,12 +48,14 @@ NetworkDesc NetworkGenerator::random_connected(
       parent,
       i,
       random_delay,
-      random_bandwidth});
+      random_bandwidth,
+      capacity});
     desc.links.push_back({
       i,
       parent,
       random_delay,
-      random_bandwidth});
+      random_bandwidth,
+      capacity});
   }
 
   std::uniform_int_distribution<NodeId> node_dist(0, num_nodes-1);
@@ -66,7 +71,8 @@ NetworkDesc NetworkGenerator::random_connected(
       a,
       b,
       rand_delay(min_delay, max_delay),
-      rand_bandwidth(min_bandwidth, max_bandwidth)});
+      rand_bandwidth(min_bandwidth, max_bandwidth),
+      capacity});
   }
 
   return desc;
@@ -105,4 +111,74 @@ void NetworkGenerator::add_uniform_random_packets(
 
     ++added;
   }
+}
+
+void NetworkGenerator::add_undirected_edge(
+    NetworkDesc& desc,
+    NodeId a,
+    NodeId b,
+    SimTime min_delay,
+    SimTime max_delay,
+    double min_bandwidth,
+    double max_bandwidth,
+    size_t capacity)
+{
+  SimTime delay = rand_delay(min_delay, max_delay);
+  double bandwidth = rand_bandwidth(min_bandwidth, max_bandwidth);
+  desc.links.push_back({a, b, delay, bandwidth, capacity});
+  desc.links.push_back({b, a, delay, bandwidth, capacity});
+}
+
+NetworkDesc NetworkGenerator::scale_free(
+  int num_nodes, int m,
+  SimTime min_delay, SimTime max_delay,
+  double min_bandwidth, double max_bandwidth,
+  size_t capacity)
+{
+  NetworkDesc desc;
+  if (num_nodes <= 0) return desc;
+
+  desc.nodes.reserve(num_nodes);
+  for (int i = 0; i < num_nodes; i++)
+  {
+    desc.nodes.push_back({nullptr});
+  }
+
+  // needed to guarantee progress
+  m = std::min(m, std::max(1, num_nodes-1));
+
+  // repeated_nodes holds each node once per edge endpoint it currently owns
+  // sampling uniformly from this then samples proportional to degree
+  std::vector<NodeId> repeated_nodes;
+
+  // seed with small fully connected core, so can start with something nonzero degree
+  int core_size = std::min(num_nodes, m + 1);
+  for (NodeId i = 0; i < static_cast<NodeId>(core_size); i++)
+  {
+    for (NodeId j = i + 1; j < static_cast<NodeId>(core_size); j++)
+    {
+      add_undirected_edge(desc, i, j, min_delay, max_delay, min_bandwidth, max_bandwidth, capacity);
+      repeated_nodes.push_back(i);
+      repeated_nodes.push_back(j);
+    }
+  }
+
+  for (NodeId new_node = core_size; new_node < static_cast<NodeId>(num_nodes); new_node++)
+  {
+    std::unordered_set<NodeId> targets;
+    while (static_cast<int>(targets.size()) < m)
+    {
+      std::uniform_int_distribution<size_t> dist(0, repeated_nodes.size() - 1);
+      targets.insert(repeated_nodes[dist(rng)]);
+    }
+
+    for (NodeId target : targets)
+    {
+      add_undirected_edge(desc, new_node, target, min_delay, max_delay, min_bandwidth, max_bandwidth, capacity);
+      repeated_nodes.push_back(new_node);
+      repeated_nodes.push_back(target);
+    }
+  }
+
+  return desc;
 }
