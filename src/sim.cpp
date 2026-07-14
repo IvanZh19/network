@@ -62,8 +62,9 @@ void Simulation::schedule(std::unique_ptr<Event> e)
 
 void Simulation::schedule_all_packets(Simulation& sim)
 {
-  for (auto& p : packets)
+  for (size_t i = 1; i < packets.size(); i++)
   {
+    const auto& p = packets[i];
     PacketId pid = p->id;
     NodeId psrc = p->src;
     sim.schedule(std::make_unique<Event>(sim.now(),
@@ -204,7 +205,8 @@ void Simulation::print_nodes() const
 void Simulation::print_packets() const
 {
   std::cout << "Packets: \n";
-  for (const auto& p_ptr : packets) {
+  for (size_t i = 1; i < packets.size(); i++) {
+    const auto& p_ptr = packets[i];
     std::cout << "- Packet " << p_ptr->id
               << "  - owner: " << p_ptr->owner
               << "  - src: " << p_ptr->src
@@ -235,16 +237,18 @@ void Simulation::export_packets(const std::string &filename) const
     throw std::runtime_error("Failed to open packets file");
   }
 
-  out << "id,src,dst,owner,packet_size,creation_time\n";
+  out << "id,src,dst,owner,packet_size,creation_time,flow_id\n";
 
-  for (const auto& p : packets)
+  for (size_t i = 1; i < packets.size(); i++)
   {
+    const auto& p = packets[i];
     out << p->id << ","
         << p->src << ","
         << p->dst << ","
         << p->owner << ","
         << p->packet_size << ","
-        << p->creation_time << "\n";
+        << p->creation_time << ","
+        << p->flow_id << "\n";
   }
 }
 

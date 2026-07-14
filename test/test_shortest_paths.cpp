@@ -12,10 +12,10 @@ int main()
 
   Simulation sim1 = Simulation();
 
-  NodeId zero1 = sim1.add_node(0.0, nullptr);
-  NodeId one1 = sim1.add_node(0.0, nullptr);
-  NodeId two1 = sim1.add_node(0.0, nullptr);
-  NodeId three1 = sim1.add_node(0.0, nullptr);
+  NodeId zero1 = sim1.add_node();
+  NodeId one1 = sim1.add_node();
+  NodeId two1 = sim1.add_node();
+  NodeId three1 = sim1.add_node();
 
   // two paths 0-1-3, 0-2-3
   sim1.add_directed_link(zero1, one1, 1.0, 100);
@@ -50,10 +50,10 @@ int main()
 
   Simulation sim2 = Simulation();
 
-  NodeId zero2 = sim2.add_node(0.0, nullptr);
-  NodeId one2 = sim2.add_node(0.0, nullptr);
-  NodeId two2 = sim2.add_node(0.0, nullptr);
-  NodeId three2 = sim2.add_node(0.0, nullptr);
+  NodeId zero2 = sim2.add_node();
+  NodeId one2 = sim2.add_node();
+  NodeId two2 = sim2.add_node();
+  NodeId three2 = sim2.add_node();
 
   // two paths 0-1-3, 0-2-3, should choose 0-1-3 because only bandwidth
   sim2.add_directed_link(zero2, one2, 1.0, 100);
@@ -86,10 +86,10 @@ int main()
 
   Simulation sim3 = Simulation();
 
-  NodeId zero3 = sim3.add_node(0.0, nullptr);
-  NodeId one3 = sim3.add_node(0.0, nullptr);
-  NodeId two3 = sim3.add_node(0.0, nullptr);
-  NodeId three3 = sim3.add_node(0.0, nullptr);
+  NodeId zero3 = sim3.add_node();
+  NodeId one3 = sim3.add_node();
+  NodeId two3 = sim3.add_node();
+  NodeId three3 = sim3.add_node();
 
   // (1 + 1/100) * 2 is smaller than (0.5 + 1/1) * 2
   sim3.add_directed_link(zero3, one3, 1.0, 100);
@@ -122,10 +122,10 @@ int main()
 
   Simulation sim4 = Simulation();
 
-  NodeId zero4 = sim4.add_node(0.0, nullptr);
-  NodeId one4 = sim4.add_node(0.0, nullptr);
-  NodeId two4 = sim4.add_node(0.0, nullptr);
-  NodeId three4 = sim4.add_node(0.0, nullptr);
+  NodeId zero4 = sim4.add_node();
+  NodeId one4 = sim4.add_node();
+  NodeId two4 = sim4.add_node();
+  NodeId three4 = sim4.add_node();
 
   // 1-3 has delay 1000, but is just one hop
   sim4.add_directed_link(zero4, one4, 1.0, 100);

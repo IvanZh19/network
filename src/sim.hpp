@@ -40,7 +40,7 @@ public:
   void run(); // step() until no more events are left.
   bool run_bounded(size_t max_steps); // step() for a number of steps, returns true if done
 
-  NodeId add_node(std::unique_ptr<Strategy> strategy);
+  NodeId add_node(std::unique_ptr<Strategy> strategy = nullptr);
   Node &get_node(NodeId id); // return Node& for the given id
 
   PacketId add_packet(NodeId source, NodeId dest, int packet_size, SimTime creation_time,

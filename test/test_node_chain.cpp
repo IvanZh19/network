@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include "../src/sim.hpp"
+#include <assert.h>
+#include "test_utils.hpp"
 
 int main()
 {
@@ -9,10 +11,10 @@ int main()
 
   Simulation sim = Simulation();
 
-  NodeId zero = sim.add_node(1.0, std::make_unique<RandomNeighborStrategy>(0, sim));
-  NodeId one = sim.add_node(1.0, std::make_unique<RandomNeighborStrategy>(1, sim));
-  NodeId two = sim.add_node(1.0, std::make_unique<RandomNeighborStrategy>(2, sim));
-  NodeId three = sim.add_node(1.0, std::make_unique<RandomNeighborStrategy>(3, sim));
+  NodeId zero = sim.add_node(std::make_unique<RandomNeighborStrategy>(0, sim));
+  NodeId one = sim.add_node(std::make_unique<RandomNeighborStrategy>(1, sim));
+  NodeId two = sim.add_node(std::make_unique<RandomNeighborStrategy>(2, sim));
+  NodeId three = sim.add_node(std::make_unique<RandomNeighborStrategy>(3, sim));
 
   sim.add_directed_link(zero, one, 1.0, 100);
   sim.add_directed_link(one, two, 2.0, 100);
@@ -23,7 +25,6 @@ int main()
   PacketId p_zero = sim.add_packet(zero, three, 5, 0.0);
 
   // so we have a chain 0 --> 1 --> 2 --> 3
-  // these edges imply that we should just end up at 3, at t=6.0
 
   // send a "trigger" to Node 0
   sim.schedule(std::make_unique<Event>(sim.now(),
@@ -31,6 +32,8 @@ int main()
     ));
 
   sim.run();
+
+  assert(approx(sim.now(), 6.15));
 
   sim.export_log("build/logs/test_node_chain.csv");
   sim.export_packets("build/packets/test_node_chain.csv");

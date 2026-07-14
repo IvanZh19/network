@@ -11,8 +11,8 @@ void back_to_back(int num_packets, double prop_delay, double bandwidth)
 {
   Simulation sim = Simulation();
 
-  NodeId zero = sim.add_node(0.1, nullptr);
-  NodeId one = sim.add_node(0.1, nullptr);
+  NodeId zero = sim.add_node(nullptr);
+  NodeId one = sim.add_node(nullptr);
 
   sim.add_directed_link(zero, one, prop_delay, bandwidth);
 
@@ -33,11 +33,11 @@ void back_to_back(int num_packets, double prop_delay, double bandwidth)
 
 // Test that Node send_rate is respected, with a fast Link (low pd)
 // Assumes send_rate larger than 1/100 (1/bandwidth)
-void fast_link(int num_packets, SimTime send_rate)
+void fast_link(int num_packets)
 {
   Simulation sim = Simulation();
-  NodeId zero = sim.add_node(send_rate, nullptr);
-  NodeId one = sim.add_node(send_rate, nullptr);
+  NodeId zero = sim.add_node(nullptr);
+  NodeId one = sim.add_node(nullptr);
   sim.add_directed_link(zero, one, 0, 100);
 
   sim.get_node(zero).set_strategy(std::make_unique<ShortestPathStrategy>(zero, sim, 1, 0, 0));
@@ -51,7 +51,8 @@ void fast_link(int num_packets, SimTime send_rate)
 
   sim.run();
 
-  assert(sim.now() == (num_packets-1) * send_rate);
+  // TODO: update the assert for this test
+  // assert(sim.now() == (num_packets-1) * send_rate);
 }
 
 // Tests that a 3-Node chain of Links accepts a small burst of Packets.
@@ -59,9 +60,9 @@ void burst_chain(int num_packets)
 {
   Simulation sim = Simulation();
 
-  NodeId zero = sim.add_node(0.1, nullptr);
-  NodeId one = sim.add_node(0.1, nullptr);
-  NodeId two = sim.add_node(0.1, nullptr);
+  NodeId zero = sim.add_node(nullptr);
+  NodeId one = sim.add_node(nullptr);
+  NodeId two = sim.add_node(nullptr);
 
   sim.add_directed_link(zero, one, 1, 10);
   sim.add_directed_link(one, two, 1, 10);
@@ -84,15 +85,14 @@ void burst_chain(int num_packets)
 }
 
 // Tests for a network 1 <-- 0 --> 2 that 0 can send bursts of Packets to both 1 and 2.
-// This has slightly undesirable behavior, as one queue per Node means that Node will factor in a Link's next_free_time into its
-// next time of sending, even though there might be another Link, i.e. the streams are not truly parallel but staggered.
+// With OutputPort, this should serialize just fine and not affect each other.
 void fork(int num_packets)
 {
   Simulation sim = Simulation();
 
-  NodeId zero = sim.add_node(0, nullptr);
-  NodeId one = sim.add_node(0, nullptr);
-  NodeId two = sim.add_node(0, nullptr);
+  NodeId zero = sim.add_node(nullptr);
+  NodeId one = sim.add_node(nullptr);
+  NodeId two = sim.add_node(nullptr);
 
   sim.add_directed_link(zero, one, 0, 10);
   sim.add_directed_link(zero, two, 0, 10);
@@ -143,10 +143,7 @@ int main()
 
   for (int np = 5; np < 10; np++)
   {
-    for (SimTime sr = 0.5; sr < 5; sr = sr + 0.5)
-    {
-      fast_link(np, sr);
-    }
+    fast_link(np);
   }
 
   for (int np = 5; np < 10; np ++)

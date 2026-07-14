@@ -19,8 +19,7 @@ int main()
 
   sim.initialize_topology(net_desc);
 
-  sim.initialize_strategies(StrategyPick::ShortestPathStrategy_, {1, 0, 0}, sim);
-  // sim.initialize_strategies(StrategyPick::RandomNeighborStrategy_, {}, sim);
+  sim.initialize_strategies(StrategyType::ShortestPath, {.pd_factor=1}, sim);
 
   sim.print_nodes();
   sim.print_adj_list();
