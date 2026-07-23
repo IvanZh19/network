@@ -14,7 +14,8 @@
 class CongestionControl
 {
 public:
-  virtual void on_ack(SimTime rtt_sample, size_t bytes_acked, SimTime now) = 0;
+  virtual void on_ack(SimTime rtt_sample, size_t bytes_acked, SimTime now,
+                        SimTime send_time, double delivered_at_send) = 0;
   virtual void on_timeout() = 0;
   virtual double get_cwnd() const = 0;
 
@@ -29,11 +30,12 @@ public:
 class AimdCongestionControl : public CongestionControl
 {
 public:
-  explicit AimdCongestionControl(double initial_cwnd) : floor_(initial_cwnd), cwnd_(initial_cwnd) {}
+  AimdCongestionControl(double initial_cwnd, int packet_size) : floor_(initial_cwnd), cwnd_(initial_cwnd), packet_size_(packet_size) {}
 
-  void on_ack(SimTime rtt_sample, size_t bytes_acked, SimTime now) override
+  void on_ack(SimTime rtt_sample, size_t bytes_acked, SimTime now, SimTime send_time, double delivered_at_send) override
   {
-    cwnd_ += static_cast<double>(bytes_acked);
+    // each ACK increases by roughly (1/cwnd) packets worth of bytes
+    cwnd_ += (static_cast<double>(bytes_acked) * packet_size_) / cwnd_;
   }
 
   void on_timeout() override
@@ -46,6 +48,7 @@ public:
 private:
   double floor_;
   double cwnd_;
+  int packet_size_;
 };
 
 class BbrCongestionControl : public CongestionControl
@@ -54,16 +57,16 @@ public:
   explicit BbrCongestionControl(double initial_cwnd, double gain, int bw_window_rtts, SimTime rtt_window)
     : floor_(initial_cwnd), gain_(gain), bw_window_rtts_(bw_window_rtts), rtt_window_(rtt_window) {}
 
-  void on_ack(SimTime rtt_sample, size_t bytes_acked, SimTime now) override
+  void on_ack(SimTime rtt_sample, size_t bytes_acked, SimTime now, SimTime send_time, double delivered_at_send) override
   {
-    // bandwidth sample is bytes delivered per unit time since last ACK
-    if (last_ack_time_ >= 0.0 && now > last_ack_time_)
+    // bandwidth sample anchored to packet's original send time, avoids clustering issue
+    delivered_bytes_ += bytes_acked;
+    if (now > send_time)
     {
-      SimTime interval = now - last_ack_time_;
-      double rate = static_cast<double>(bytes_acked) / interval;
+      SimTime interval = now - send_time;
+      double rate = (delivered_bytes_ - delivered_at_send) / interval;
       bw_samples_.emplace_back(now, rate);
     }
-    last_ack_time_ = now;
 
     // window bandwidth samples by RTT count
     // remove anything older than bw_window_rtts_ * current rtt estimate
@@ -119,7 +122,7 @@ private:
   int bw_window_rtts_;
   SimTime rtt_window_;
 
-  SimTime last_ack_time_ = -1.0; // does assume this is before anything else
+  double delivered_bytes_ = 0.0; // like Flow's total_delivered_
   std::deque<std::pair<SimTime, double>> bw_samples_;
   double max_bandwidth_bps_ = 0.0;
 
@@ -132,6 +135,7 @@ enum class CongestionControlType { AIMD, BBR };
 struct CongestionControlParams
 {
   double initial_cwnd = 0.0; // "one packet's worth", Flow construction will handle
+  int packet_size = 0;
   // BBR-specific params
   double bbr_gain = 2.0; // cwnd = gain * BDP estimate
   int bbr_bw_window_rtts = 8; // max-filter window for bandwidth, in RTTs
@@ -144,10 +148,10 @@ inline std::unique_ptr<CongestionControl> make_congestion_control(
   switch (type)
   {
     case CongestionControlType::AIMD:
-      return std::make_unique<AimdCongestionControl>(params.initial_cwnd);
+      return std::make_unique<AimdCongestionControl>(params.initial_cwnd, params.packet_size);
     case CongestionControlType::BBR:
       return std::make_unique<BbrCongestionControl>(
         params.initial_cwnd, params.bbr_gain, params.bbr_bw_window_rtts, params.bbr_rtt_window);
   }
-  return std::make_unique<AimdCongestionControl>(params.initial_cwnd);
+  return std::make_unique<AimdCongestionControl>(params.initial_cwnd, params.packet_size);
 }

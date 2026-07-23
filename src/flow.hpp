@@ -15,6 +15,7 @@ struct FlightInfo
 {
   SimTime send_time;
   int packet_size;
+  int64_t delivered_at_send;
 };
 
 class Flow
@@ -58,6 +59,7 @@ private:
   std::unique_ptr<CongestionControl> cc_;
   SimTime rtt_estimate = 0.0;
   int consecutive_timeouts_ = 0;
+  int64_t total_delivered_ = 0;
 
   // maps pid to send time and size, for sent but not ACKed
   std::unordered_map<PacketId, FlightInfo> in_flight;

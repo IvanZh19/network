@@ -8,8 +8,9 @@
 
 // TODO: cleanup these hardcoded values?
 constexpr double RTT_ALPHA = 0.2;
-constexpr SimTime MIN_RTO = 0.05;
-constexpr SimTime DEFAULT_RTO = 1.0;
+constexpr SimTime MIN_RTO = 1;
+constexpr SimTime DEFAULT_RTO = 200;
+constexpr SimTime MAX_RTO = 300;
 
 Flow::Flow(FlowId id, NodeId src, NodeId dst, int64_t total_bytes, int packet_size,
             CongestionControlType cc_type, CongestionControlParams cc_params)
@@ -17,6 +18,7 @@ Flow::Flow(FlowId id, NodeId src, NodeId dst, int64_t total_bytes, int packet_si
     cc_([&]() {
       CongestionControlParams p = cc_params;
       if (p.initial_cwnd <= 0.0) p.initial_cwnd = static_cast<double>(packet_size);
+      p.packet_size = packet_size;
       return make_congestion_control(cc_type, p);
     }()) {}
 
@@ -53,7 +55,7 @@ void Flow::send_one_packet(Simulation& sim)
   bytes_remaining -= this_size;
 
   PacketId pid = sim.add_packet(src_, dst_, this_size, sim.now(), flow_id);
-  in_flight[pid] = {.send_time=sim.now(), .packet_size=this_size};
+  in_flight[pid] = {.send_time=sim.now(), .packet_size=this_size, .delivered_at_send=total_delivered_};
   in_flight_bytes_ += this_size;
 
   sim.get_node(src_).originate_packet(pid, sim);
@@ -63,7 +65,8 @@ void Flow::send_one_packet(Simulation& sim)
 void Flow::schedule_timeout(PacketId pid, Simulation& sim)
 {
   SimTime base_rto = (rtt_estimate > 0.0) ? std::max(2.0 * rtt_estimate, MIN_RTO) : DEFAULT_RTO;
-  SimTime rto = base_rto * std::pow(2.0, std::min(consecutive_timeouts_, 5)); // cap at 5
+  SimTime rto = base_rto * std::pow(2.0, std::min(consecutive_timeouts_, 10)); // cap at 10
+  rto = std::min(rto, MAX_RTO);
   sim.schedule(std::make_unique<Event>(sim.now() + rto,
     [this, pid, &sim]() { this->on_timeout(pid, sim); }
   ));
@@ -80,10 +83,15 @@ void Flow::on_ack(Packet& ack, Simulation& sim)
   SimTime sample_rtt = sim.now() - it->second.send_time;
   size_t acked_bytes = it->second.packet_size;
   rtt_estimate = (rtt_estimate <= 0.0) ? sample_rtt : (1 - RTT_ALPHA) * rtt_estimate + RTT_ALPHA * sample_rtt;
+
+  SimTime send_time = it->second.send_time;
+  int64_t delivered_at_send = it->second.delivered_at_send;
+  total_delivered_ += acked_bytes;
+
   in_flight.erase(it);
   in_flight_bytes_ -= acked_bytes;
 
-  cc_->on_ack(sample_rtt, acked_bytes, sim.now());
+  cc_->on_ack(sample_rtt, acked_bytes, sim.now(), send_time, static_cast<double>(delivered_at_send));
   consecutive_timeouts_ = 0;
 
   if (is_complete())

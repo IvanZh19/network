@@ -18,7 +18,9 @@ void OutputPort::enqueue_and_drain(PacketId pid, Simulation& sim)
   if (!busy_)
   {
     busy_ = true;
-    sim.schedule(std::make_unique<Event>(sim.now(),
+    Link& link = sim.get_link(owner_, neighbor_);
+    SimTime send_time = std::max(sim.now(), link.next_free_time());
+    sim.schedule(std::make_unique<Event>(send_time,
       [this, &sim]() { this->do_send(sim); }
     ));
   }
